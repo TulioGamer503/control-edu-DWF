@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Docente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .stat-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.7;
+        }
+        .welcome-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="p-4">
+        <h4 class="text-center mb-4">
+            <i class="fas fa-graduation-cap me-2"></i>ControlEdu
+        </h4>
+
+        <div class="text-center mb-4">
+            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                 style="width: 80px; height: 80px; color: #28a745;">
+                <i class="fas fa-chalkboard-teacher fa-2x"></i>
+            </div>
+            <h6 class="mt-2 mb-0" th:text="${docente.nombres + ' ' + docente.apellidos}"></h6>
+            <small th:text="${docente.materia}"></small>
+        </div>
+
+        <nav class="nav flex-column">
+            <a class="nav-link active" th:href="@{/docente/dashboard}">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+            <a class="nav-link" th:href="@{/docente/estudiantes}">
+                <i class="fas fa-users me-2"></i>Estudiantes
+            </a>
+            <a class="nav-link" th:href="@{/docente/registrar-falta}">
+                <i class="fas fa-exclamation-triangle me-2"></i>Registrar Falta
+            </a>
+            <a class="nav-link" th:href="@{/docente/registrar-observacion}">
+                <i class="fas fa-clipboard-list me-2"></i>Registrar Observación
+            </a>
+            <a class="nav-link" th:href="@{/docente/historial}">
+                <i class="fas fa-history me-2"></i>Mi Historial
+            </a>
+            <hr>
+            <a class="nav-link" th:href="@{/auth/profile}">
+                <i class="fas fa-user me-2"></i>Perfil
+            </a>
+            <a class="nav-link text-danger" th:href="@{/auth/logout}">
+                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2>Bienvenido, Prof. <span th:text="${docente.nombres}"></span></h2>
+                <p class="mb-0">Educando con valores, formando con disciplina</p>
+            </div>
+            <div class="col-auto">
+                <i class="fas fa-chalkboard-teacher fa-3x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 th:text="${totalIncidentes}">0</h4>
+                            <p class="mb-0">Incidentes Registrados</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 th:text="${totalObservaciones}">0</h4>
+                            <p class="mb-0">Observaciones Registradas</p>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Registrar Falta de Conducta
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                    <p>Registra una nueva falta de conducta de un estudiante</p>
+                    <a th:href="@{/docente/registrar-falta}" class="btn btn-warning">
+                        <i class="fas fa-plus me-2"></i>Registrar Falta
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Registrar Observación
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-check fa-3x text-info mb-3"></i>
+                    <p>Agrega una observación sobre el comportamiento de un estudiante</p>
+                    <a th:href="@{/docente/registrar-observacion}" class="btn btn-info">
+                        <i class="fas fa-plus me-2"></i>Registrar Observación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Incidents -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-history me-2"></i>Incidentes Recientes
+            </h5>
+        </div>
+        <div class="card-body">
+            <div th:if="${incidentesRecientes.empty}" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <p>No has registrado incidentes recientemente</p>
+            </div>
+            <div th:each="incidente : ${incidentesRecientes}" class="border-bottom pb-3 mb-3">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 th:text="${incidente.estudiante.nombres + ' ' + incidente.estudiante.apellidos}"></h6>
+                        <p class="mb-1" th:text="${incidente.conducta.nombreConducta}"></p>
+                        <small class="text-muted" th:text="${incidente.accionesTomadas}"></small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                            <span class="badge" th:classappend="${incidente.conducta.gravedad.nombreGravedad == 'leve' ? 'bg-warning' :
+                                                                incidente.conducta.gravedad.nombreGravedad == 'grave' ? 'bg-danger' :
+                                                                'bg-dark'}">
+                                <span th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                            </span>
+                        <br>
+                        <small class="text-muted" th:text="${#temporals.format(incidente.fechaRegistro)}"></small>
+                    </div>
+                </div>
+            </div>
+            <a th:href="@{/docente/historial}" class="btn btn-outline-primary btn-sm w-100">
+                Ver Todo el Historial
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
