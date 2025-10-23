@@ -45,7 +45,6 @@
     </style>
 </head>
 <body>
-<!-- Sidebar -->
 <div class="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
@@ -65,20 +64,15 @@
             <a class="nav-link" th:href="@{/director/dashboard}">
                 <i class="fas fa-tachometer-alt me-2"></i>Dashboard
             </a>
-            <a class="nav-link" th:href="@{/director/estudiantes}">
-                <i class="fas fa-users me-2"></i>Estudiantes
+            <a class="nav-link" th:href="@{/director/gestion/estudiantes}"> <i class="fas fa-users me-2"></i>Estudiantes
             </a>
-            <a class="nav-link" th:href="@{/director/docentes}">
-                <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
+            <a class="nav-link" th:href="@{/director/gestion/docentes}"> <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
             </a>
-            <a class="nav-link active" th:href="@{/director/conductas}">
-                <i class="fas fa-clipboard-list me-2"></i>Conductas
+            <a class="nav-link active" th:href="@{/director/gestion/conductas}"> <i class="fas fa-clipboard-list me-2"></i>Conductas
             </a>
-            <a class="nav-link" th:href="@{/director/incidentes}">
-                <i class="fas fa-exclamation-triangle me-2"></i>Incidentes
+            <a class="nav-link" th:href="@{/director/incidentes}"> <i class="fas fa-exclamation-triangle me-2"></i>Incidentes
             </a>
-            <a class="nav-link" th:href="@{/director/reportes}">
-                <i class="fas fa-chart-bar me-2"></i>Reportes
+            <a class="nav-link" th:href="@{/director/reportes}"> <i class="fas fa-chart-bar me-2"></i>Reportes
             </a>
             <hr>
             <a class="nav-link" th:href="@{/auth/profile}">
@@ -91,9 +85,7 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
@@ -108,7 +100,6 @@
         </div>
     </div>
 
-    <!-- Conductas Table -->
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">
@@ -140,12 +131,13 @@
                             <small class="text-muted" th:text="${conducta.descripcion}"></small>
                         </td>
                         <td>
-                                    <span th:classappend="'badge ' +
-                                        (conducta.gravedad.nombreGravedad == 'leve' ? 'badge-leve' :
-                                         conducta.gravedad.nombreGravedad == 'grave' ? 'badge-grave' :
-                                         'badge-muy-grave')">
-                                        <span th:text="${conducta.gravedad.nombreGravedad}"></span>
-                                    </span>
+    <span class="badge"
+          th:classappend="
+              ${conducta.gravedad?.nombreGravedad?.toLowerCase() == 'leve' ? 'badge-leve' :
+              (conducta.gravedad?.nombreGravedad?.toLowerCase() == 'grave' ? 'badge-grave' :
+              (conducta.gravedad?.nombreGravedad?.toLowerCase() == 'muy grave' ? 'badge-muy-grave' : 'bg-secondary'))}">
+              <span th:text="${conducta.gravedad?.nombreGravedad ?: 'N/A'}"></span>
+    </span>
                         </td>
                         <td>
                             <span class="badge bg-info" th:text="${conducta.registrosConducta.size()}">0</span>
@@ -165,7 +157,7 @@
                                 <button th:unless="${conducta.activo}" class="btn btn-outline-success" title="Activar">
                                     <i class="fas fa-toggle-off"></i>
                                 </button>
-                                <button th:if="${conducta.registrosConducta.empty}" class="btn btn-outline-danger" title="Eliminar">
+                                <button th:if="${conducta.registrosConducta?.size() == 0}" class="btn btn-outline-danger" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -177,7 +169,6 @@
         </div>
     </div>
 
-    <!-- Statistics -->
     <div class="row mt-4">
         <div class="col-md-3">
             <div class="card bg-primary text-white">
@@ -214,7 +205,6 @@
     </div>
 </div>
 
-<!-- Add Conducta Modal -->
 <div class="modal fade" id="addConductaModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">

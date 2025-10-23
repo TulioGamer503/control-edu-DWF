@@ -13,6 +13,7 @@
             min-height: 100vh;
             position: fixed;
             width: 250px;
+            z-index: 1000; /* Asegura que esté visible */
         }
         .sidebar .nav-link {
             color: white;
@@ -24,6 +25,8 @@
         .sidebar .nav-link:hover {
             background: rgba(255,255,255,0.1);
         }
+        /* La clase 'active' ya no se aplicará automáticamente con este cambio,
+           pero la dejamos definida por si se implementa de otra forma después */
         .sidebar .nav-link.active {
             background: rgba(255,255,255,0.2);
         }
@@ -54,8 +57,7 @@
     </style>
 </head>
 <body>
-<!-- Sidebar -->
-<div class="sidebar">
+<div class="sidebar" th:fragment="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
             <i class="fas fa-graduation-cap me-2"></i>ControlEdu
@@ -66,57 +68,37 @@
                  style="width: 80px; height: 80px; color: #667eea;">
                 <i class="fas fa-user-tie fa-2x"></i>
             </div>
-            <h6 class="mt-2 mb-0" th:text="${director.nombres + ' ' + director.apellidos}"></h6>
+            <h6 class="mt-2 mb-0" th:text="${director?.nombres + ' ' + director?.apellidos}">Nombre Director</h6>
             <small>Director</small>
         </div>
 
         <nav class="nav flex-column">
-            <a class="nav-link active" th:href="@{/director/dashboard}">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            <a class="nav-link" th:href="@{/director/dashboard}"> <i class="fas fa-tachometer-alt me-2"></i>Dashboard
             </a>
-            <a class="nav-link" th:href="@{/director/estudiantes}">
-                <i class="fas fa-users me-2"></i>Estudiantes
+            <a class="nav-link" th:href="@{/director/gestion/estudiantes}"> <i class="fas fa-users me-2"></i>Estudiantes
             </a>
-            <a class="nav-link" th:href="@{/director/docentes}">
-                <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
+            <a class="nav-link" th:href="@{/director/gestion/docentes}"> <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
             </a>
-            <a class="nav-link" th:href="@{/director/conductas}">
-                <i class="fas fa-clipboard-list me-2"></i>Conductas
+            <a class="nav-link" th:href="@{/director/gestion/conductas}"> <i class="fas fa-clipboard-list me-2"></i>Conductas
             </a>
-            <a class="nav-link" th:href="@{/director/incidentes}">
-                <i class="fas fa-exclamation-triangle me-2"></i>Incidentes
+            <a class="nav-link" th:href="@{/director/incidentes}"> <i class="fas fa-exclamation-triangle me-2"></i>Incidentes
             </a>
-            <a class="nav-link" th:href="@{/director/reportes}">
-                <i class="fas fa-chart-bar me-2"></i>Reportes
+            <a class="nav-link" th:href="@{/director/reportes}"> <i class="fas fa-chart-bar me-2"></i>Reportes
             </a>
             <hr>
-            <a class="nav-link" th:href="@{/auth/profile}">
-                <i class="fas fa-user me-2"></i>Perfil
+            <a class="nav-link" th:href="@{/auth/profile}"> <i class="fas fa-user me-2"></i>Perfil
             </a>
-
-            <a class="nav-link text-danger" th:href="@{/auth/logout}">
-                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-            </a>
-            <a class="nav-link" th:href="@{/director/gestion/docentes}">
-                <i class="fas fa-user-plus me-2"></i>Gestionar Docentes
-            </a>
-            <a class="nav-link" th:href="@{/director/gestion/estudiantes}">
-                <i class="fas fa-user-graduate me-2"></i>Gestionar Estudiantes
-            </a>
-            <a class="nav-link" th:href="@{/director/gestion/conductas}">
-                <i class="fas fa-edit me-2"></i>Gestionar Conductas
+            <a class="nav-link text-danger" th:href="@{/auth/logout}"> <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
             </a>
         </nav>
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Welcome Header -->
     <div class="welcome-header">
         <div class="row align-items-center">
             <div class="col">
-                <h2>Bienvenido, <span th:text="${director.nombres}"></span></h2>
+                <h2>Bienvenido, <span th:text="${director?.nombres}"></span></h2>
                 <p class="mb-0">Educando con valores, formando con disciplina</p>
             </div>
             <div class="col-auto">
@@ -125,7 +107,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card stat-card text-white bg-primary">
@@ -189,9 +170,7 @@
         </div>
     </div>
 
-    <!-- Recent Activity -->
     <div class="row g-4">
-        <!-- Recent Incidents -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-warning text-white">
@@ -200,29 +179,27 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div th:if="${incidentesRecientes.empty}" class="text-center text-muted py-4">
+                    <div th:if="${#lists.isEmpty(incidentesRecientes)}" class="text-center text-muted py-4">
                         <i class="fas fa-check-circle fa-2x mb-3"></i>
                         <p>No hay incidentes recientes</p>
                     </div>
-                    <div th:each="incidente : ${incidentesRecientes}" class="border-bottom pb-2 mb-2">
+                    <div th:unless="${#lists.isEmpty(incidentesRecientes)}" th:each="incidente : ${incidentesRecientes}" class="border-bottom pb-2 mb-2">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="mb-1" th:text="${incidente.estudiante.nombres + ' ' + incidente.estudiante.apellidos}"></h6>
-                                <small class="text-muted" th:text="${incidente.conducta.nombreConducta}"></small>
+                                <h6 class="mb-1" th:text="${incidente.estudiante?.nombres + ' ' + incidente.estudiante?.apellidos}"></h6>
+                                <small class="text-muted" th:text="${incidente.conducta?.nombreConducta}"></small>
                                 <br>
-                                <small class="text-muted" th:text="${'Grado: ' + incidente.estudiante.grado + '° ' + incidente.estudiante.seccion}"></small>
+                                <small class="text-muted" th:text="${'Grado: ' + incidente.estudiante?.grado + '° ' + incidente.estudiante?.seccion}"></small>
                             </div>
-                            <small class="text-muted" th:text="${#temporals.format(incidente.fechaRegistro)}"></small>
+                            <small class="text-muted" th:text="${incidente.fechaRegistro != null ? #temporals.format(incidente.fechaRegistro, 'dd/MM/yyyy') : ''}"></small>
                         </div>
                     </div>
-                    <a th:href="@{/director/incidentes}" class="btn btn-outline-warning btn-sm w-100 mt-2">
-                        Ver Todos los Incidentes
+                    <a th:href="@{/director/incidentes}" class="btn btn-outline-warning btn-sm w-100 mt-2"> Ver Todos los Incidentes
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Observations -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header bg-info text-white">
@@ -231,23 +208,22 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div th:if="${observacionesRecientes.empty}" class="text-center text-muted py-4">
+                    <div th:if="${#lists.isEmpty(observacionesRecientes)}" class="text-center text-muted py-4">
                         <i class="fas fa-check-circle fa-2x mb-3"></i>
                         <p>No hay observaciones recientes</p>
                     </div>
-                    <div th:each="observacion : ${observacionesRecientes}" class="border-bottom pb-2 mb-2">
+                    <div th:unless="${#lists.isEmpty(observacionesRecientes)}" th:each="observacion : ${observacionesRecientes}" class="border-bottom pb-2 mb-2">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="mb-1" th:text="${observacion.estudiante.nombres + ' ' + observacion.estudiante.apellidos}"></h6>
+                                <h6 class="mb-1" th:text="${observacion.estudiante?.nombres + ' ' + observacion.estudiante?.apellidos}"></h6>
                                 <small class="text-muted" th:text="${observacion.tipoObservacion}"></small>
                                 <br>
-                                <small class="text-muted" th:text="${'Por: ' + observacion.docente.nombres}"></small>
+                                <small class="text-muted" th:text="${'Por: ' + observacion.docente?.nombres}"></small>
                             </div>
-                            <small class="text-muted" th:text="${#temporals.format(observacion.fecha)}"></small>
+                            <small class="text-muted" th:text="${observacion.fecha != null ? #temporals.format(observacion.fecha, 'dd/MM/yyyy') : ''}"></small>
                         </div>
                     </div>
-                    <a th:href="@{/director/incidentes}" class="btn btn-outline-info btn-sm w-100 mt-2">
-                        Ver Todas las Observaciones
+                    <a th:href="@{/director/observaciones}" class="btn btn-outline-info btn-sm w-100 mt-2"> Ver Todas las Observaciones
                     </a>
                 </div>
             </div>
