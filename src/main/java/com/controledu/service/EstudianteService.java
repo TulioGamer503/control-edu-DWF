@@ -43,8 +43,34 @@ public class EstudianteService {
     }
 
     public Estudiante save(Estudiante estudiante) {
-        // ELIMINADO: estudiante.setRol("ESTUDIANTE"); - Ya no es necesario
         return estudianteRepository.save(estudiante);
+    }
+
+    /**
+     * Actualiza un estudiante existente en la base de datos.
+     * @param estudianteActualizado El objeto Estudiante con los nuevos datos.
+     * @return El estudiante guardado.
+     */
+    public Estudiante update(Estudiante estudianteActualizado) {
+        // Busca el estudiante existente en la base de datos por su ID.
+        Estudiante estudianteExistente = estudianteRepository.findById(estudianteActualizado.getId())
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con id: " + estudianteActualizado.getId()));
+
+        // Actualiza todos los campos con los nuevos valores.
+        estudianteExistente.setNombres(estudianteActualizado.getNombres());
+        estudianteExistente.setApellidos(estudianteActualizado.getApellidos());
+        estudianteExistente.setGrado(estudianteActualizado.getGrado());
+        estudianteExistente.setSeccion(estudianteActualizado.getSeccion());
+        estudianteExistente.setFechaNacimiento(estudianteActualizado.getFechaNacimiento());
+        estudianteExistente.setUsuario(estudianteActualizado.getUsuario());
+
+        // Lógica especial para la contraseña: solo se actualiza si el campo no viene vacío.
+        if (estudianteActualizado.getPassword() != null && !estudianteActualizado.getPassword().isEmpty()) {
+            estudianteExistente.setPassword(estudianteActualizado.getPassword());
+        }
+
+        // Guarda el estudiante ya actualizado.
+        return estudianteRepository.save(estudianteExistente);
     }
 
     public void deleteById(Long id) {
@@ -71,10 +97,11 @@ public class EstudianteService {
         return estudianteRepository.countByGrado(grado);
     }
 
-    public List<String> findAllGradosDistinct() {
+    public List<String> findAllGradosDistinct() { // <-- El cambio está aquí
         return estudianteRepository.findAllGradosDistinct();
     }
 
+    // Este método para las secciones ya es correcto porque las secciones son texto ("A", "B", etc.)
     public List<String> findAllSeccionesDistinct() {
         return estudianteRepository.findAllSeccionesDistinct();
     }

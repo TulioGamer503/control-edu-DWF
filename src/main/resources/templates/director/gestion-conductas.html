@@ -6,14 +6,118 @@
     <title>Gestión de Conductas - Director</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            background-color: #eef1f6;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .page-header h2 {
+            color: #343a40;
+            font-weight: 600;
+        }
+        .page-header p {
+            color: #6c757d;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.75rem;
+        }
+        .card-gradient-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .card-gradient-form .card-title { color: white; font-weight: 600; }
+        .card-gradient-form .form-label { color: rgba(255, 255, 255, 0.8); font-weight: 500; }
+        .card-gradient-form .form-control,
+        .card-gradient-form .form-select {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white; border-radius: 0.5rem;
+        }
+        .card-gradient-form .form-control::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .card-gradient-form .form-control:focus,
+        .card-gradient-form .form-select:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .card-gradient-form .form-select {
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 16px 12px;
+        }
+        .card-gradient-form .form-select option { color: #333; }
+        .btn-gradient-white-border {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 1px solid rgba(255,255,255,0.7);
+            color: white; font-weight: 500; padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease; border-radius: 50px;
+        }
+        .btn-gradient-white-border:hover {
+            color: white; background: linear-gradient(135deg, #7a8ef1 0%, #8b60b7 100%);
+            transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .table thead { border-bottom: 2px solid #e9ecef; }
+        .table th { font-weight: 600; color: #495057; }
+        .table-hover > tbody > tr:hover { background-color: rgba(102, 126, 234, 0.05); }
+        .table td, .table th { vertical-align: middle; }
+        .badge-success-light { background-color: rgba(40, 167, 69, 0.15); color: #28a745 !important; }
+        .badge-warning-light { background-color: rgba(255, 193, 7, 0.15); color: #ffc107 !important; }
+        .badge-danger-light { background-color: rgba(220, 53, 69, 0.15); color: #dc3545 !important; }
+
+        .modal-content { border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .modal-header { background: linear-gradient(90deg, #eef1f6 0%, #fdfefe 100%); border-bottom: 1px solid #e9ecef; border-radius: 15px 15px 0 0; }
+        .modal-title { color: #343a40; font-weight: 600; }
+        .modal-body .form-label { color: #495057; font-weight: 500; display: flex; align-items: center; }
+        .modal-body .form-label .fas { color: #667eea; margin-right: 0.5rem; }
+        .modal-body .form-control:focus, .modal-body .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25); }
+        .modal-footer { border-top: 1px solid #e9ecef; background-color: #f8f9fa; border-radius: 0 0 15px 15px; }
+        .modal-footer .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;
+            color: white; font-weight: 500; border-radius: 50px; padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .modal-footer .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    </style>
 </head>
 <body>
+
 <div th:replace="~{director/dashboard :: sidebar}"></div>
 
 <div class="main-content">
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="page-header">
+        <div class="page-header mb-4">
             <div class="row align-items-center">
                 <div class="col">
                     <h2><i class="fas fa-clipboard-list me-2"></i>Gestión de Conductas</h2>
@@ -22,55 +126,39 @@
             </div>
         </div>
 
-        <!-- Alert Messages -->
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <span th:text="${success}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-
-        <!-- Add Conducta Form -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus me-2"></i>Agregar Nueva Conducta
+        <div class="card mb-4 card-gradient-form">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4">
+                    <i class="fas fa-plus-circle me-2"></i>Agregar Nueva Conducta
                 </h5>
-            </div>
-            <div class="card-body">
                 <form th:action="@{/director/gestion/conductas/crear}" method="post">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nombre de la Conducta *</label>
-                                <input type="text" class="form-control" name="nombreConducta"
-                                       placeholder="Ej: Falta de respeto" required>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="nombreConducta" class="form-label">
+                                <i class="fas fa-font fa-fw me-2"></i>Nombre de la Conducta *
+                            </label>
+                            <input type="text" id="nombreConducta" class="form-control" name="nombreConducta" placeholder="Ej: Falta de respeto" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Gravedad *</label>
-                                <select class="form-select" name="idGravedad" required>
-                                    <option value="">Seleccionar gravedad</option>
-                                    <option th:each="gravedad : ${gravedades}"
-                                            th:value="${gravedad.idGravedad}"
-                                            th:text="${gravedad.nombreGravedad}"></option>
-                                </select>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="idGravedad" class="form-label">
+                                <i class="fas fa-exclamation-circle fa-fw me-2"></i>Gravedad *
+                            </label>
+                            <select id="idGravedad" class="form-select" name="idGravedad" required>
+                                <option value="" disabled selected>Seleccionar el nivel de gravedad</option>
+                                <option th:each="gravedad : ${gravedades}"
+                                        th:value="${gravedad.idGravedad}"
+                                        th:text="${gravedad.nombreGravedad}"></option>
+                            </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción *</label>
-                        <textarea class="form-control" name="descripcion" rows="3"
-                                  placeholder="Descripción detallada de la conducta..." required></textarea>
+                    <div class="mb-4">
+                        <label for="descripcion" class="form-label">
+                            <i class="fas fa-align-left fa-fw me-2"></i>Descripción *
+                        </label>
+                        <textarea id="descripcion" class="form-control" name="descripcion" rows="3" placeholder="Descripción detallada de la conducta..." required></textarea>
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success">
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-gradient-white-border rounded-pill">
                             <i class="fas fa-save me-2"></i>Guardar Conducta
                         </button>
                     </div>
@@ -78,77 +166,37 @@
             </div>
         </div>
 
-        <!-- Conductas List -->
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="fas fa-list me-2"></i>Lista de Conductas
-                    <span class="badge bg-primary ms-2" th:text="${conductas.size()}"></span>
+                    <i class="fas fa-list-ul me-2" style="color: #667eea;"></i>Lista de Conductas
+                    <span class="badge rounded-pill bg-primary ms-2" th:text="${#lists.size(conductas)}"></span>
                 </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th class="ps-4">#</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Gravedad</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="cond, stat : ${conductas}">
-                            <td th:text="${stat.count}"></td>
-                            <td>
-                                <strong th:text="${cond.nombreConducta}"></strong>
-                            </td>
-                            <td>
-                                <small class="text-muted" th:text="${cond.descripcion}"></small>
-                            </td>
-                            <td>
-                                        <span th:classappend="'badge ' +
-                                            (cond.gravedad.nombreGravedad == 'leve' ? 'bg-success' :
-                                             cond.gravedad.nombreGravedad == 'grave' ? 'bg-warning' :
-                                             'bg-danger')">
-                                            <span th:text="${cond.gravedad.nombreGravedad}"></span>
-                                        </span>
-                            </td>
-                            <td>
-                                <span th:if="${cond.activo}" class="badge bg-success">Activa</span>
-                                <span th:unless="${cond.activo}" class="badge bg-secondary">Inactiva</span>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editConductaModal"
-                                            th:attr="data-id=${cond.idConducta}"
-                                            th:data-nombre="${cond.nombreConducta}"
-                                            th:data-descripcion="${cond.descripcion}"
-                                            th:data-gravedad="${cond.gravedad.idGravedad}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <a th:if="${cond.activo}"
-                                       th:href="@{/director/gestion/conductas/desactivar/} + ${cond.idConducta}"
-                                       class="btn btn-outline-secondary"
-                                       title="Desactivar">
-                                        <i class="fas fa-toggle-on"></i>
-                                    </a>
-                                    <a th:unless="${cond.activo}"
-                                       th:href="@{/director/gestion/conductas/activar/} + ${cond.idConducta}"
-                                       class="btn btn-outline-success"
-                                       title="Activar">
-                                        <i class="fas fa-toggle-off"></i>
-                                    </a>
-                                    <a th:href="@{/director/gestion/conductas/eliminar/} + ${cond.idConducta}"
-                                       class="btn btn-outline-danger"
-                                       onclick="return confirm('¿Estás seguro de eliminar esta conducta?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
+                            <td class="ps-4" th:text="${stat.count}"></td>
+                            <td class="fw-bold" th:text="${cond.nombreConducta}"></td>
+                            <td><small class="text-muted" th:text="${cond.descripcion}"></small></td>
+                            <td><span class="badge text-uppercase" th:classappend="${cond.gravedad.nombreGravedad == 'Leve'} ? 'badge-success-light text-success' : (${cond.gravedad.nombreGravedad == 'Grave'} ? 'badge-warning-light text-warning' : 'badge-danger-light text-danger')" th:text="${cond.gravedad.nombreGravedad}"></span></td>
+                            <td><span th:if="${cond.activo}" class="badge bg-success">Activa</span><span th:unless="${cond.activo}" class="badge bg-secondary">Inactiva</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editConductaModal" th:attr="data-id=${cond.idConducta}, data-nombre=${cond.nombreConducta}, data-descripcion=${cond.descripcion}, data-gravedad-id=${cond.gravedad.idGravedad}" title="Editar"><i class="fas fa-edit"></i></button>
+                                <a th:href="@{/director/gestion/conductas/{action}/{id}(action=${cond.activo ? 'desactivar' : 'activar'}, id=${cond.idConducta})}" class="btn btn-sm" th:classappend="${cond.activo} ? 'btn-outline-secondary' : 'btn-outline-success'" th:title="${cond.activo} ? 'Desactivar' : 'Activar'"><i th:classappend="${cond.activo} ? 'fa-toggle-on' : 'fa-toggle-off'" class="fas"></i></a>
+                                <a th:href="@{/director/gestion/conductas/eliminar/{id}(id=${cond.idConducta})}" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminacion(event)" title="Eliminar"><i class="fas fa-trash-alt"></i></a>
                             </td>
                         </tr>
                         </tbody>
@@ -159,36 +207,44 @@
     </div>
 </div>
 
-<!-- Edit Conducta Modal -->
-<div class="modal fade" id="editConductaModal" tabindex="-1">
+<div class="modal fade" id="editConductaModal" tabindex="-1" aria-labelledby="editConductaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar Conducta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="editConductaModalLabel">Editar Conducta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form th:action="@{/director/gestion/conductas/editar}" method="post" th:object="${conducta}">
+            <form th:action="@{/director/gestion/conductas/editar}" method="post">
                 <div class="modal-body">
-                    <input type="hidden" id="editId" name="idConducta">
+                    <input type="hidden" id="editIdConducta" name="idConducta">
+
                     <div class="mb-3">
-                        <label class="form-label">Nombre de la Conducta</label>
-                        <input type="text" class="form-control" id="editNombre" th:field="*{nombreConducta}" required>
+                        <label for="editNombreConducta" class="form-label">
+                            <i class="fas fa-font fa-fw"></i>Nombre de la Conducta
+                        </label>
+                        <input type="text" class="form-control" id="editNombreConducta" name="nombreConducta" required>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" id="editDescripcion" th:field="*{descripcion}" rows="3" required></textarea>
+                        <label for="editDescripcion" class="form-label">
+                            <i class="fas fa-align-left fa-fw"></i>Descripción
+                        </label>
+                        <textarea class="form-control" id="editDescripcion" name="descripcion" rows="3" required></textarea>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Gravedad</label>
-                        <select class="form-select" th:field="*{gravedad}">
-                            <option th:each="gravedad : ${gravedades}"
-                                    th:value="${gravedad}"
-                                    th:text="${gravedad.nombreGravedad}"></option>
+                        <label for="editIdGravedad" class="form-label">
+                            <i class="fas fa-exclamation-circle fa-fw"></i>Gravedad
+                        </label>
+                        <select class="form-select" id="editIdGravedad" name="idGravedad" required>
+                            <option th:each="gravedadOpt : ${gravedades}"
+                                    th:value="${gravedadOpt.idGravedad}"
+                                    th:text="${gravedadOpt.nombreGravedad}"></option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </div>
             </form>
@@ -198,20 +254,43 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Script para el modal de edición
-    document.getElementById('editConductaModal').addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var id = button.getAttribute('data-id');
-        var nombre = button.getAttribute('data-nombre');
-        var descripcion = button.getAttribute('data-descripcion');
-        var gravedad = button.getAttribute('data-gravedad');
-
-        var modal = this;
-        modal.querySelector('#editId').value = id;
-        modal.querySelector('#editNombre').value = nombre;
-        modal.querySelector('#editDescripcion').value = descripcion;
-        // Para el select de gravedad necesitarías un manejo más específico
+    document.addEventListener('DOMContentLoaded', function () {
+        const editModal = document.getElementById('editConductaModal');
+        if(editModal) {
+            editModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const nombre = button.getAttribute('data-nombre');
+                const descripcion = button.getAttribute('data-descripcion');
+                const gravedadId = button.getAttribute('data-gravedad-id');
+                const modal = this;
+                modal.querySelector('#editIdConducta').value = id;
+                modal.querySelector('#editNombreConducta').value = nombre;
+                modal.querySelector('#editDescripcion').value = descripcion;
+                modal.querySelector('#editIdGravedad').value = gravedadId;
+            });
+        }
     });
+
+    function confirmarEliminacion(event) {
+        event.preventDefault();
+        const url = event.currentTarget.href;
+
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Esta acción no se puede deshacer!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, ¡eliminar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 </script>
 </body>
 </html>

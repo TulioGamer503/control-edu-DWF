@@ -2,15 +2,20 @@ package com.controledu.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
-
+/**
+ * DTO para la creación de un nuevo Registro de Conducta.
+ * Contiene solo los campos necesarios que se envían en la petición.
+ */
 @Data
 public class RegistroConductaRequest {
+
     private Long estudianteId;
+
     private Long docenteId;
+
     private Long conductaId;
-    private LocalDate fechaRegistro;
-    private String accionesTomadas;
-    private String comentarios;
-    private String evidenciaUrl;
+
+    // Este es el campo que te faltaba
+    private String observaciones;
+
 }

@@ -53,18 +53,30 @@ public class ConductaService {
     }
 
     public Conducta createConducta(String nombre, String descripcion, Long gravedadId) {
-        Optional<TipoGravedad> gravedad = tipoGravedadService.findById(gravedadId);
-        if (gravedad.isEmpty()) {
-            throw new RuntimeException("Tipo de gravedad no encontrado");
-        }
+        TipoGravedad gravedad = tipoGravedadService.findById(gravedadId)
+                .orElseThrow(() -> new RuntimeException("Tipo de gravedad no encontrado"));
 
         Conducta conducta = new Conducta();
         conducta.setNombreConducta(nombre);
         conducta.setDescripcion(descripcion);
-        conducta.setGravedad(gravedad.get());
+        conducta.setGravedad(gravedad);
         conducta.setActivo(true);
 
         return conductaRepository.save(conducta);
+    }
+
+    public Conducta update(Long idConducta, String nombre, String descripcion, Long gravedadId) {
+        Conducta conductaExistente = conductaRepository.findById(idConducta)
+                .orElseThrow(() -> new RuntimeException("Conducta no encontrada con id: " + idConducta));
+
+        TipoGravedad gravedadSeleccionada = tipoGravedadService.findById(gravedadId)
+                .orElseThrow(() -> new RuntimeException("Gravedad no encontrada con id: " + gravedadId));
+
+        conductaExistente.setNombreConducta(nombre);
+        conductaExistente.setDescripcion(descripcion);
+        conductaExistente.setGravedad(gravedadSeleccionada);
+
+        return conductaRepository.save(conductaExistente);
     }
 
     public void deleteById(Long id) {

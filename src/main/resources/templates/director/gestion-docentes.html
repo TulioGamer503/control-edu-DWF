@@ -6,14 +6,204 @@
     <title>Gestión de Docentes - Director</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            background-color: #eef1f6;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.15);
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        .page-header h2 {
+            color: #343a40;
+            font-weight: 600;
+        }
+        .page-header p {
+            color: #6c757d;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.75rem;
+            border-radius: 15px 15px 0 0;
+        }
+        .card-header .card-title {
+            color: #343a40;
+            font-weight: 600;
+        }
+        .card-header .card-title .fas {
+            color: #667eea;
+        }
+        .card-gradient-form {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .card-gradient-form .card-body {
+            padding: 1.75rem;
+        }
+        .card-gradient-form .card-title {
+            color: white;
+            font-weight: 600;
+        }
+        .card-gradient-form .card-title .fas {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .card-gradient-form .form-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+        .card-gradient-form .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 0.5rem;
+        }
+        .card-gradient-form .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .card-gradient-form .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        .btn-gradient-white-border {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 1px solid rgba(255,255,255,0.7);
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border-radius: 50px;
+        }
+        .btn-gradient-white-border:hover {
+            color: white;
+            background: linear-gradient(135deg, #7a8ef1 0%, #8b60b7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .table thead {
+            border-bottom: 2px solid #e9ecef;
+        }
+        .table th {
+            font-weight: 600;
+            color: #495057;
+        }
+        .table-hover > tbody > tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .badge-materia {
+            background-color: rgba(118, 75, 162, 0.15);
+            color: #764ba2 !important;
+            font-weight: 500;
+            padding: 0.4em 0.7em;
+            border-radius: 50px;
+        }
+        .table .btn-outline-primary { border-color: #667eea; color: #667eea; }
+        .table .btn-outline-primary:hover { background-color: #667eea; color: white; }
+        .table .btn-outline-danger { border-color: #dc3545; color: #dc3545; }
+        .table .btn-outline-danger:hover { background-color: #dc3545; color: white; }
+        .table td.ps-4, .table th.ps-4 {
+            padding-left: 1.5rem !important;
+        }
+        .modal-content {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            background: linear-gradient(90deg, #eef1f6 0%, #fdfefe 100%);
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 15px 15px 0 0;
+        }
+        .modal-title {
+            color: #343a40;
+            font-weight: 600;
+        }
+        .modal-body .form-label {
+            color: #495057;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .modal-body .form-label .fas {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+        .modal-body .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            border-radius: 0 0 15px 15px;
+            padding: 1rem 1.75rem;
+        }
+        .modal-footer .btn-secondary {
+            border-radius: 50px;
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .modal-footer .btn-secondary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .modal-footer .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-weight: 500;
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .modal-footer .btn-primary:hover {
+            color: white;
+            background: linear-gradient(135deg, #7a8ef1 0%, #8b60b7 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
+
 <div th:replace="~{director/dashboard :: sidebar}"></div>
 
 <div class="main-content">
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="page-header">
+        <div class="page-header mb-4">
             <div class="row align-items-center">
                 <div class="col">
                     <h2><i class="fas fa-chalkboard-teacher me-2"></i>Gestión de Docentes</h2>
@@ -22,65 +212,46 @@
             </div>
         </div>
 
-        <!-- Alert Messages -->
         <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            <span th:text="${success}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-
         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <!-- Add Teacher Form -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus me-2"></i>Agregar Nuevo Docente
-                </h5>
-            </div>
-            <div class="card-body">
+        <div class="card mb-4 card-gradient-form">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4"><i class="fas fa-user-plus me-2"></i>Agregar Nuevo Docente</h5>
                 <form th:action="@{/director/gestion/docentes/crear}" method="post" th:object="${docente}">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Nombres *</label>
-                                <input type="text" class="form-control" th:field="*{nombres}" required>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-user fa-fw me-2"></i>Nombres *</label>
+                            <input type="text" class="form-control" th:field="*{nombres}" placeholder="Juan Carlos" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Apellidos *</label>
-                                <input type="text" class="form-control" th:field="*{apellidos}" required>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-user fa-fw me-2"></i>Apellidos *</label>
+                            <input type="text" class="form-control" th:field="*{apellidos}" placeholder="Pérez López" required>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Materia *</label>
-                                <input type="text" class="form-control" th:field="*{materia}" required>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-book fa-fw me-2"></i>Materia *</label>
+                            <input type="text" class="form-control" th:field="*{materia}" placeholder="Matemáticas" required>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Usuario *</label>
-                                <input type="text" class="form-control" th:field="*{usuario}" required>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-at fa-fw me-2"></i>Usuario *</label>
+                            <input type="text" class="form-control" th:field="*{usuario}" placeholder="jperez" required>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Contraseña *</label>
-                                <input type="password" class="form-control" th:field="*{password}" required>
-                            </div>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label"><i class="fas fa-key fa-fw me-2"></i>Contraseña *</label>
+                            <input type="password" class="form-control" th:field="*{password}" placeholder="••••••••" required>
                         </div>
-                        <div class="col-md-6 d-flex align-items-end">
-                            <button type="submit" class="btn btn-success w-100">
+                        <div class="col-md-6 d-flex align-items-center justify-content-center">
+                            <button type="submit" class="btn btn-gradient-white-border">
                                 <i class="fas fa-save me-2"></i>Guardar Docente
                             </button>
                         </div>
@@ -89,54 +260,49 @@
             </div>
         </div>
 
-        <!-- Teachers List -->
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="fas fa-list me-2"></i>Lista de Docentes
-                    <span class="badge bg-primary ms-2" th:text="${docentes.size()}"></span>
+                    <i class="fas fa-list-ul me-2"></i>Lista de Docentes
+                    <span class="badge rounded-pill bg-primary ms-2" th:text="${#lists.size(docentes)}"></span>
                 </h5>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-hover mb-0">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th class="ps-4">#</th>
                             <th>Nombres</th>
                             <th>Apellidos</th>
                             <th>Materia</th>
                             <th>Usuario</th>
-                            <th>Acciones</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="doc, stat : ${docentes}">
-                            <td th:text="${stat.count}"></td>
-                            <td th:text="${doc.nombres}"></td>
-                            <td th:text="${doc.apellidos}"></td>
+                            <td class="ps-4" th:text="${stat.count}"></td>
+                            <td class="fw-bold" th:text="${doc.nombres}"></td>
+                            <td class="fw-bold" th:text="${doc.apellidos}"></td>
                             <td>
-                                <span class="badge bg-success" th:text="${doc.materia}"></span>
+                                <span class="badge rounded-pill badge-materia" th:text="${doc.materia}"></span>
                             </td>
                             <td th:text="${doc.usuario}"></td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editTeacherModal"
-                                            th:attr="data-id=${doc.id}"
-                                            th:data-nombres="${doc.nombres}"
-                                            th:data-apellidos="${doc.apellidos}"
-                                            th:data-materia="${doc.materia}"
-                                            th:data-usuario="${doc.usuario}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <a th:href="@{/director/gestion/docentes/eliminar/} + ${doc.id}"
-                                       class="btn btn-outline-danger"
-                                       onclick="return confirm('¿Estás seguro de eliminar este docente?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editTeacherModal"
+                                        th:attr="data-id=${doc.id}, data-nombres=${doc.nombres}, data-apellidos=${doc.apellidos}, data-materia=${doc.materia}, data-usuario=${doc.usuario}"
+                                        title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a th:href="@{/director/gestion/docentes/eliminar/{id}(id=${doc.id})}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="confirmarEliminacion(event)"
+                                   title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </td>
                         </tr>
                         </tbody>
@@ -147,41 +313,40 @@
     </div>
 </div>
 
-<!-- Edit Teacher Modal -->
-<div class="modal fade" id="editTeacherModal" tabindex="-1">
+<div class="modal fade" id="editTeacherModal" tabindex="-1" aria-labelledby="editTeacherModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar Docente</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="editTeacherModalLabel">Editar Docente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form th:action="@{/director/gestion/docentes/editar}" method="post">
                 <div class="modal-body">
                     <input type="hidden" id="editId" name="id">
                     <div class="mb-3">
-                        <label class="form-label">Nombres</label>
+                        <label class="form-label"><i class="fas fa-user fa-fw me-2"></i>Nombres</label>
                         <input type="text" class="form-control" id="editNombres" name="nombres" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Apellidos</label>
+                        <label class="form-label"><i class="fas fa-user fa-fw me-2"></i>Apellidos</label>
                         <input type="text" class="form-control" id="editApellidos" name="apellidos" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Materia</label>
+                        <label class="form-label"><i class="fas fa-book fa-fw me-2"></i>Materia</label>
                         <input type="text" class="form-control" id="editMateria" name="materia" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Usuario</label>
+                        <label class="form-label"><i class="fas fa-at fa-fw me-2"></i>Usuario</label>
                         <input type="text" class="form-control" id="editUsuario" name="usuario" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Contraseña (dejar en blanco para no cambiar)</label>
+                        <label class="form-label"><i class="fas fa-key fa-fw me-2"></i>Nueva Contraseña (dejar en blanco para no cambiar)</label>
                         <input type="password" class="form-control" name="password">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -190,22 +355,46 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Script para el modal de edición
-    document.getElementById('editTeacherModal').addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var id = button.getAttribute('data-id');
-        var nombres = button.getAttribute('data-nombres');
-        var apellidos = button.getAttribute('data-apellidos');
-        var materia = button.getAttribute('data-materia');
-        var usuario = button.getAttribute('data-usuario');
+    document.addEventListener('DOMContentLoaded', function () {
+        const editTeacherModal = document.getElementById('editTeacherModal');
+        if (editTeacherModal) {
+            editTeacherModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const id = button.getAttribute('data-id');
+                const nombres = button.getAttribute('data-nombres');
+                const apellidos = button.getAttribute('data-apellidos');
+                const materia = button.getAttribute('data-materia');
+                const usuario = button.getAttribute('data-usuario');
 
-        var modal = this;
-        modal.querySelector('#editId').value = id;
-        modal.querySelector('#editNombres').value = nombres;
-        modal.querySelector('#editApellidos').value = apellidos;
-        modal.querySelector('#editMateria').value = materia;
-        modal.querySelector('#editUsuario').value = usuario;
+                const modal = this;
+                modal.querySelector('#editId').value = id;
+                modal.querySelector('#editNombres').value = nombres;
+                modal.querySelector('#editApellidos').value = apellidos;
+                modal.querySelector('#editMateria').value = materia;
+                modal.querySelector('#editUsuario').value = usuario;
+                modal.querySelector('input[name="password"]').value = '';
+            });
+        }
     });
+
+    function confirmarEliminacion(event) {
+        event.preventDefault();
+        const url = event.currentTarget.href;
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Esta acción no se puede deshacer!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, ¡eliminar!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 </script>
 </body>
 </html>

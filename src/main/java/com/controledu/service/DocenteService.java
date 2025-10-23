@@ -35,8 +35,25 @@ public class DocenteService {
     }
 
     public Docente save(Docente docente) {
-        // ELIMINADO: docente.setRol("DOCENTE"); - Ya no es necesario
         return docenteRepository.save(docente);
+    }
+
+    public Docente update(Docente docenteActualizado) {
+        Docente docenteExistente = docenteRepository.findById(docenteActualizado.getId())
+                .orElseThrow(() -> new RuntimeException("Docente no encontrado con id: " + docenteActualizado.getId()));
+
+        docenteExistente.setNombres(docenteActualizado.getNombres());
+        docenteExistente.setApellidos(docenteActualizado.getApellidos());
+        docenteExistente.setMateria(docenteActualizado.getMateria());
+        docenteExistente.setUsuario(docenteActualizado.getUsuario());
+
+        // Lógica especial para la contraseña: solo se actualiza si el campo no viene vacío.
+        if (docenteActualizado.getPassword() != null && !docenteActualizado.getPassword().isEmpty()) {
+            // Aquí deberías encriptar la contraseña antes de guardarla en un proyecto real
+            docenteExistente.setPassword(docenteActualizado.getPassword());
+        }
+
+        return docenteRepository.save(docenteExistente);
     }
 
     public void deleteById(Long id) {

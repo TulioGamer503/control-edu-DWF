@@ -29,6 +29,11 @@ public class RegistroConducta {
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
 
+    // --- ✅ CAMPO AÑADIDO ---
+    @Column(name = "observaciones", columnDefinition = "TEXT")
+    private String observaciones;
+    // ----------------------
+
     @Column(name = "acciones_tomadas")
     private String accionesTomadas;
 
@@ -62,7 +67,7 @@ public class RegistroConducta {
         }
     }
 
-    // ======== MÉTODO FALTANTE ========
+    // ======== MÉTODOS UTILITARIOS ========
 
     /**
      * Marca el registro como leído y actualiza la fecha de lectura.

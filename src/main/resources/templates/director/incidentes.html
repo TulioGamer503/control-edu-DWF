@@ -7,169 +7,94 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
     <style>
-        .sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-            position: fixed;
-            width: 250px;
-        }
-        .sidebar .nav-link {
-            color: white;
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 0;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.2);
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .badge-leve { background-color: #28a745; }
-        .badge-grave { background-color: #ffc107; color: #000; }
-        .badge-muy-grave { background-color: #dc3545; }
+        body { background-color: #eef1f6; }
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; position: fixed; width: 250px; z-index: 1000; }
+        .sidebar .nav-link { color: white; padding: 0.75rem 1rem; margin: 0.25rem 0; border-radius: 0.5rem; transition: all 0.3s ease; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); }
+        .main-content { margin-left: 250px; padding: 20px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .page-header h2 { color: #343a40; font-weight: 600; }
+        .page-header p { color: #6c757d; }
+        .card-header { background-color: #fff; border-bottom: 1px solid #e9ecef; padding: 1.25rem 1.75rem; }
+        .table thead { border-bottom: 2px solid #e9ecef; }
+        .table th { font-weight: 600; color: #495057; }
+        .table-hover > tbody > tr:hover { background-color: rgba(102, 126, 234, 0.05); }
+        .table td, .table th { vertical-align: middle; }
+        .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25); }
+        .badge-success-light { background-color: rgba(40, 167, 69, 0.15); color: #28a745 !important; }
+        .badge-warning-light { background-color: rgba(255, 193, 7, 0.15); color: #ffc107 !important; }
+        .badge-danger-light { background-color: rgba(220, 53, 69, 0.15); color: #dc3545 !important; }
     </style>
 </head>
 <body>
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="p-4">
-        <h4 class="text-center mb-4">
-            <i class="fas fa-graduation-cap me-2"></i>ControlEdu
-        </h4>
+<div th:replace="~{director/dashboard :: sidebar}"></div>
 
-        <div class="text-center mb-4">
-            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center"
-                 style="width: 80px; height: 80px; color: #667eea;">
-                <i class="fas fa-user-tie fa-2x"></i>
-            </div>
-            <h6 class="mt-2 mb-0" th:text="${director.nombres + ' ' + director.apellidos}"></h6>
-            <small>Director</small>
-        </div>
-
-        <nav class="nav flex-column">
-            <a class="nav-link" th:href="@{/director/dashboard}">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </a>
-            <a class="nav-link" th:href="@{/director/estudiantes}">
-                <i class="fas fa-users me-2"></i>Estudiantes
-            </a>
-            <a class="nav-link" th:href="@{/director/docentes}">
-                <i class="fas fa-chalkboard-teacher me-2"></i>Docentes
-            </a>
-            <a class="nav-link" th:href="@{/director/conductas}">
-                <i class="fas fa-clipboard-list me-2"></i>Conductas
-            </a>
-            <a class="nav-link active" th:href="@{/director/incidentes}">
-                <i class="fas fa-exclamation-triangle me-2"></i>Incidentes
-            </a>
-            <a class="nav-link" th:href="@{/director/reportes}">
-                <i class="fas fa-chart-bar me-2"></i>Reportes
-            </a>
-            <hr>
-            <a class="nav-link" th:href="@{/auth/profile}">
-                <i class="fas fa-user me-2"></i>Perfil
-            </a>
-            <a class="nav-link text-danger" th:href="@{/auth/logout}">
-                <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-            </a>
-        </nav>
-    </div>
-</div>
-
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Page Header -->
-    <div class="page-header">
+    <div class="page-header mb-4">
         <div class="row align-items-center">
             <div class="col">
                 <h2><i class="fas fa-exclamation-triangle me-2"></i>Gestión de Incidentes</h2>
-                <p class="mb-0">Visualiza y gestiona todos los incidentes registrados en el sistema</p>
+                <p class="mb-0">Visualiza y gestiona todos los incidentes registrados</p>
             </div>
             <div class="col-auto">
-                <div class="btn-group">
-                    <button class="btn btn-light">
-                        <i class="fas fa-download me-2"></i>Exportar
-                    </button>
-                </div>
+                <button class="btn btn-light"><i class="fas fa-download me-2"></i>Exportar</button>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="card mb-4">
         <div class="card-body">
+            <h5 class="card-title mb-3"><i class="fas fa-filter me-2 text-primary"></i>Filtros</h5>
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">Gravedad</label>
                     <select class="form-select" id="filterGravedad">
                         <option value="">Todas las gravedades</option>
-                        <option value="leve">Leve</option>
-                        <option value="grave">Grave</option>
-                        <option value="muy grave">Muy Grave</option>
+                        <option th:each="g : ${gravedades}" th:value="${g.nombreGravedad}" th:text="${g.nombreGravedad}"></option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Grado</label>
                     <select class="form-select" id="filterGrado">
                         <option value="">Todos los grados</option>
-                        <option th:each="grado : ${grados}" th:value="${grado}" th:text="${grado}"></option>
+                        <option th:each="grado : ${grados}" th:value="${grado + '°'}" th:text="${grado + '°'}"></option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Estado</label>
                     <select class="form-select" id="filterEstado">
                         <option value="">Todos los estados</option>
-                        <option value="ACTIVO">Activo</option>
-                        <option value="RESUELTO">Resuelto</option>
-                        <option value="ARCHIVADO">Archivado</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Resuelto">Resuelto</option>
+                        <option value="Archivado">Archivado</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-outline-secondary w-100" id="btnReset">
-                        <i class="fas fa-refresh me-2"></i>Limpiar
-                    </button>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-secondary w-100" id="btnReset"><i class="fas fa-times me-2"></i>Limpiar Filtros</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Incidents Table -->
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">
-                <i class="fas fa-list me-2"></i>Registro de Incidentes
-                <span class="badge bg-primary ms-2" th:text="${incidentes.size()}"></span>
+                <i class="fas fa-list-ul me-2 text-primary"></i>Registro de Incidentes
             </h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table id="incidentsTable" class="table table-striped table-hover">
+                <table id="incidentsTable" class="table table-hover">
                     <thead>
                     <tr>
                         <th>#</th>
                         <th>Estudiante</th>
                         <th>Conducta</th>
                         <th>Gravedad</th>
-                        <th>Docente</th>
+                        <th>Reportado por</th>
                         <th>Fecha</th>
                         <th>Estado</th>
                         <th>Leído</th>
-                        <th>Acciones</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -177,49 +102,29 @@
                         <td th:text="${stat.count}"></td>
                         <td>
                             <strong th:text="${incidente.estudiante.nombres + ' ' + incidente.estudiante.apellidos}"></strong>
-                            <br>
-                            <small class="text-muted" th:text="${incidente.estudiante.grado + '° ' + incidente.estudiante.seccion}"></small>
+                            <div class="text-muted" th:text="${incidente.estudiante.grado + '° ' + incidente.estudiante.seccion}"></div>
+                        </td>
+                        <td th:text="${incidente.conducta.nombreConducta}"></td>
+                        <td>
+                            <span class="badge rounded-pill text-uppercase"
+                                  th:classappend="${#strings.equalsIgnoreCase(incidente.conducta.gravedad.nombreGravedad, 'Leve')} ? 'badge-success-light' : (${#strings.equalsIgnoreCase(incidente.conducta.gravedad.nombreGravedad, 'Grave')} ? 'badge-warning-light' : 'badge-danger-light')"
+                                  th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                        </td>
+                        <td th:text="${incidente.docente.nombres}"></td>
+                        <td th:text="${#temporals.format(incidente.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'ACTIVO')}" class="badge bg-warning">Activo</span>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'RESUELTO')}" class="badge bg-success">Resuelto</span>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'ARCHIVADO')}" class="badge bg-secondary">Archivado</span>
                         </td>
                         <td>
-                            <strong th:text="${incidente.conducta.nombreConducta}"></strong>
-                            <br>
-                            <small class="text-muted" th:text="${incidente.conducta.descripcion}"></small>
+                            <span th:if="${incidente.leido}" class="badge bg-success"><i class="fas fa-check"></i></span>
+                            <span th:unless="${incidente.leido}" class="badge bg-warning"><i class="fas fa-clock"></i></span>
                         </td>
-                        <td>
-                                    <span th:classappend="'badge ' +
-                                        (incidente.conducta.gravedad.nombreGravedad == 'leve' ? 'badge-leve' :
-                                         incidente.conducta.gravedad.nombreGravedad == 'grave' ? 'badge-grave' :
-                                         'badge-muy-grave')">
-                                        <span th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
-                                    </span>
-                        </td>
-                        <td th:text="${incidente.docente.nombres + ' ' + incidente.docente.apellidos}"></td>
-                        <td th:text="${#temporals.format(incidente.fechaRegistro)}"></td>
-                        <td>
-                            <span th:if="${incidente.estado == 'ACTIVO'}" class="badge bg-warning">Activo</span>
-                            <span th:if="${incidente.estado == 'RESUELTO'}" class="badge bg-success">Resuelto</span>
-                            <span th:if="${incidente.estado == 'ARCHIVADO'}" class="badge bg-secondary">Archivado</span>
-                        </td>
-                        <td>
-                                    <span th:if="${incidente.leido}" class="badge bg-success">
-                                        <i class="fas fa-check"></i> Sí
-                                    </span>
-                            <span th:unless="${incidente.leido}" class="badge bg-warning">
-                                        <i class="fas fa-clock"></i> No
-                                    </span>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-primary" title="Ver detalles">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-outline-info" title="Marcar como leído">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-outline-success" title="Resolver">
-                                    <i class="fas fa-check-double"></i>
-                                </button>
-                            </div>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary" title="Ver detalles"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-info" title="Marcar como leído"><i class="fas fa-check"></i></button>
+                            <button class="btn btn-sm btn-outline-success" title="Resolver"><i class="fas fa-check-double"></i></button>
                         </td>
                     </tr>
                     </tbody>
@@ -228,36 +133,35 @@
         </div>
     </div>
 
-    <!-- Statistics -->
-    <div class="row mt-4">
+    <div class="row mt-4 g-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${incidentes.size()}">0</h4>
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h4 class="display-6" th:text="${totalIncidentes}">0</h4>
                     <p class="mb-0">Total Incidentes</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${registroConductaService.findNoLeidos().size()}">0</h4>
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h4 class="display-6" th:text="${totalNoLeidos}">0</h4>
                     <p class="mb-0">No Leídos</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${registroConductaService.findByEstado('RESUELTO').size()}">0</h4>
+            <div class="card bg-success text-white h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h4 class="display-6" th:text="${totalResueltos}">0</h4>
                     <p class="mb-0">Resueltos</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${registroConductaService.findByEstado('ACTIVO').size()}">0</h4>
+            <div class="card bg-info text-white h-100">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <h4 class="display-6" th:text="${totalActivos}">0</h4>
                     <p class="mb-0">Activos</p>
                 </div>
             </div>
@@ -265,35 +169,34 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         var table = $('#incidentsTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
             },
-            pageLength: 10
+            pageLength: 10,
+            order: [[ 5, "desc" ]] // Ordenar por fecha (columna 5) descendente por defecto
         });
 
-        // Filter by gravedad
+        // El filtro de DataTables busca en el contenido renderizado de la celda.
+        // Asegúrate que el texto buscado coincida exactamente (ej. 'Leve', '1°', 'Activo').
         $('#filterGravedad').on('change', function() {
             table.column(3).search(this.value).draw();
         });
 
-        // Filter by grado
         $('#filterGrado').on('change', function() {
             table.column(1).search(this.value).draw();
         });
 
-        // Filter by estado
         $('#filterEstado').on('change', function() {
             table.column(6).search(this.value).draw();
         });
 
-        // Reset filters
         $('#btnReset').on('click', function() {
             $('#filterGravedad').val('');
             $('#filterGrado').val('');
