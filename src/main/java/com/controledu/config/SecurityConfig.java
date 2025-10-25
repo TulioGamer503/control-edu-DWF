@@ -15,7 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        // Permitir todo temporalmente para debugging
+                        // Permitirtodo temporalmente para debugging
                         .anyRequest().permitAll()
                 )
                 .csrf(csrf -> csrf.disable()); // Deshabilitar CSRF temporalmente
