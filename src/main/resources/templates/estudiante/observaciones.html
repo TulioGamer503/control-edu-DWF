@@ -38,22 +38,19 @@
             padding: 2rem;
             margin-bottom: 2rem;
         }
-        .observacion-card {
+        .obs-card {
             border-left: 4px solid;
             transition: transform 0.2s ease;
         }
-        .observacion-card:hover {
+        .obs-card:hover {
             transform: translateY(-2px);
         }
-        .observacion-positiva { border-left-color: #28a745; }
-        .observacion-negativa { border-left-color: #dc3545; }
-        .observacion-neutra { border-left-color: #6c757d; }
-        .observacion-mejora { border-left-color: #17a2b8; }
-        .observacion-recomendacion { border-left-color: #ffc107; }
+        .obs-positiva { border-left-color: #28a745; }
+        .obs-negativa { border-left-color: #dc3545; }
+        .obs-otra { border-left-color: #6c757d; }
     </style>
 </head>
 <body>
-<!-- Sidebar -->
 <div class="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
@@ -93,181 +90,110 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
                 <h2><i class="fas fa-clipboard-list me-2"></i>Mis Observaciones</h2>
-                <p class="mb-0">Revisa las observaciones que tus profesores han registrado sobre ti</p>
+                <p class="mb-0">Aquí puedes ver todas las observaciones registradas por tus docentes</p>
             </div>
         </div>
     </div>
 
-    <!-- Statistics -->
-    <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.size()}">0</h4>
-                    <p class="mb-0">Total</p>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <h4 th:text="${totalPositivas}">0</h4>
+                    <p class="mb-0">Observaciones Positivas</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.stream().filter(o -> o.tipoObservacion == 'positiva').count()}">0</h4>
-                    <p class="mb-0">Positivas</p>
+        <div class="col-md-4">
+            <div class="card stat-card text-white bg-danger">
+                <div class="card-body">
+                    <h4 th:text="${totalNegativas}">0</h4>
+                    <p class="mb-0">Observaciones Negativas</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="card bg-danger text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.stream().filter(o -> o.tipoObservacion == 'negativa').count()}">0</h4>
-                    <p class="mb-0">Negativas</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="card bg-secondary text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.stream().filter(o -> o.tipoObservacion == 'neutra').count()}">0</h4>
-                    <p class="mb-0">Neutras</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.stream().filter(o -> o.tipoObservacion == 'mejora').count()}">0</h4>
-                    <p class="mb-0">Mejoras</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="card bg-warning text-white">
-                <div class="card-body text-center">
-                    <h4 th:text="${observaciones.stream().filter(o -> o.tipoObservacion == 'recomendacion').count()}">0</h4>
-                    <p class="mb-0">Recomend.</p>
+        <div class="col-md-4">
+            <div class="card stat-card text-white bg-secondary">
+                <div class="card-body">
+                    <h4 th:text="${totalOtras}">0</h4>
+                    <p class="mb-0">Otras Observaciones</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Observations List -->
-    <div class="card">
-        <div class="card-header">
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
             <h5 class="card-title mb-0">
-                <i class="fas fa-list me-2"></i>Lista de Observaciones
+                <i class="fas fa-thumbs-up me-2"></i>Positivas
+                <span class="badge bg-light text-dark ms-2" th:text="${totalPositivas}"></span>
             </h5>
         </div>
         <div class="card-body">
-            <div th:if="${observaciones.empty}" class="text-center text-muted py-5">
-                <i class="fas fa-clipboard-check fa-4x mb-3"></i>
-                <h4 class="text-muted">No hay observaciones registradas</h4>
-                <p class="text-muted">Tus profesores aún no han agregado observaciones sobre tu comportamiento.</p>
+            <div th:if="${observacionesPositivas == null or observacionesPositivas.empty}" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <p>No tienes observaciones positivas registradas. ¡Sigue esforzándote!</p>
             </div>
-
-            <div th:each="observacion : ${observaciones}" class="card observacion-card mb-4"
-                 th:classappend="'observacion-' + ${observacion.tipoObservacion}">
+            <div th:if="${observacionesPositivas != null}" th:each="obs : ${observacionesPositivas}" class="card obs-card obs-positiva mb-3">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-9">
-                            <div class="d-flex align-items-center mb-3">
-                                    <span th:classappend="'badge ' +
-                                        (observacion.tipoObservacion == 'positiva' ? 'bg-success' :
-                                         observacion.tipoObservacion == 'negativa' ? 'bg-danger' :
-                                         observacion.tipoObservacion == 'neutra' ? 'bg-secondary' :
-                                         observacion.tipoObservacion == 'mejora' ? 'bg-info' :
-                                         'bg-warning')">
-                                        <span th:text="${observacion.tipoObservacion}"></span>
-                                    </span>
-                                <small class="text-muted ms-3">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    <span th:text="${#temporals.format(observacion.fecha)}"></span>
-                                </small>
-                                <small class="text-muted ms-3">
-                                    <i class="fas fa-user-tie me-1"></i>
-                                    <span th:text="${observacion.docente.nombres + ' ' + observacion.docente.apellidos}"></span>
-                                </small>
-                            </div>
-
-                            <p class="mb-3" th:text="${observacion.descripcion}"></p>
-
-                            <div th:if="${observacion.tipoObservacion == 'positiva'}" class="alert alert-success">
-                                <i class="fas fa-award me-2"></i>
-                                <strong>¡Buen trabajo!</strong> Sigue manteniendo este excelente comportamiento.
-                            </div>
-
-                            <div th:if="${observacion.tipoObservacion == 'negativa'}" class="alert alert-warning">
-                                <i class="fas fa-lightbulb me-2"></i>
-                                <strong>Área de mejora:</strong> Considera esta observación como una oportunidad para crecer.
-                            </div>
-
-                            <div th:if="${observacion.tipoObservacion == 'mejora'}" class="alert alert-info">
-                                <i class="fas fa-chart-line me-2"></i>
-                                <strong>Progreso notable:</strong> Se observa una mejora significativa en tu comportamiento.
-                            </div>
-
-                            <div th:if="${observacion.tipoObservacion == 'recomendacion'}" class="alert alert-light border">
-                                <i class="fas fa-hand-point-right me-2"></i>
-                                <strong>Recomendación:</strong> Sigue estas sugerencias para continuar mejorando.
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <div class="d-flex flex-column h-100 justify-content-between">
-                                <div>
-                                        <span th:if="${observacion.leido}" class="badge bg-success">
-                                            <i class="fas fa-check-double me-1"></i>Leída
-                                        </span>
-                                    <span th:unless="${observacion.leido}" class="badge bg-warning">
-                                            <i class="fas fa-envelope me-1"></i>Nueva
-                                        </span>
-                                </div>
-                                <div class="mt-auto">
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span th:if="${observacion.fechaLectura}" th:text="${'Leída: ' + #temporals.format(observacion.fechaLectura)}"></span>
-                                        <span th:unless="${observacion.fechaLectura}">No leída</span>
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="mb-2" th:text="${obs.descripcion}"></p>
+                    <small class="text-muted">
+                        Registrado por: <span th:text="${obs.docente.nombres + ' ' + obs.docente.apellidos}"></span>
+                        - <span th:text="${#temporals.format(obs.fecha)}"></span>
+                    </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Reflection Section -->
-    <div class="card bg-light mt-4">
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-thumbs-down me-2"></i>Negativas
+                <span class="badge bg-light text-dark ms-2" th:text="${totalNegativas}"></span>
+            </h5>
+        </div>
         <div class="card-body">
-            <h6 class="card-title">
-                <i class="fas fa-brain me-2 text-primary"></i>Reflexiona sobre tus Observaciones
-            </h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <strong>¿Qué puedo aprender de estas observaciones?</strong>
-                        <p class="text-muted mb-0">Cada observación es una oportunidad para conocerte mejor y mejorar.</p>
-                    </div>
-                    <div class="mb-3">
-                        <strong>¿Cómo puedo aplicar los comentarios positivos?</strong>
-                        <p class="text-muted mb-0">Identifica tus fortalezas y busca formas de mantenerlas.</p>
-                    </div>
+            <div th:if="${observacionesNegativas == null or observacionesNegativas.empty}" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <p>¡Bien! No tienes observaciones negativas registradas.</p>
+            </div>
+            <div th:if="${observacionesNegativas != null}" th:each="obs : ${observacionesNegativas}" class="card obs-card obs-negativa mb-3">
+                <div class="card-body">
+                    <p class="mb-2" th:text="${obs.descripcion}"></p>
+                    <small class="text-muted">
+                        Registrado por: <span th:text="${obs.docente.nombres + ' ' + obs.docente.apellidos}"></span>
+                        - <span th:text="${#temporals.format(obs.fecha)}"></span>
+                    </small>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <strong>¿Qué áreas necesito mejorar?</strong>
-                        <p class="text-muted mb-0">Enfócate en un área a la vez y establece metas realistas.</p>
-                    </div>
-                    <div class="mb-3">
-                        <strong>¿Necesito ayuda para mejorar?</strong>
-                        <p class="text-muted mb-0">No dudes en pedir ayuda a tus profesores o consejeros.</p>
-                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-info-circle me-2"></i>Otras
+                <span class="badge bg-light text-dark ms-2" th:text="${totalOtras}"></span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <div th:if="${observacionesOtras == null or observacionesOtras.empty}" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <p>No tienes otras observaciones registradas.</p>
+            </div>
+            <div th:if="${observacionesOtras != null}" th:each="obs : ${observacionesOtras}" class="card obs-card obs-otra mb-3">
+                <div class="card-body">
+                    <p class="mb-2" th:text="${obs.descripcion}"></p>
+                    <small class="text-muted">
+                        Registrado por: <span th:text="${obs.docente.nombres + ' ' + obs.docente.apellidos}"></span>
+                        - <span th:text="${#temporals.format(obs.fecha)}"></span>
+                    </small>
                 </div>
             </div>
         </div>
