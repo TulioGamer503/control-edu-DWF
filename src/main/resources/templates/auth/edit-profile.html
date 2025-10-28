@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - ControlEdu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            z-index: 1000;
+        }
+
+
+        .sidebar .nav-link {
+            color: white !important; /* Forzamos el color blanco para los ítems */
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* El resto de estilos */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .form-card {
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-edit {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        }
+        .form-value-box {
+            background-color: white !important; /* Fondo blanco forzado */
+            border: 1px solid #ced4da; /* Borde suave */
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Pequeña sombra */
+            transition: all 0.2s;
+        }
+        /* Ajuste para inputs deshabilitados */
+        input[readonly], input[disabled] {
+            opacity: 1; /* Para que no se vea opaco */
+            background-color: #f8f9fa !important; /* Gris claro para indicar que no es editable */
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{director/dashboard :: sidebar}"></div>
+
+<div class="main-content">
+    <div class="container-fluid">
+
+        <!-- ENCABEZADO DE EDICIÓN -->
+        <div class="header-edit">
+            <h2 class="mb-1"><i class="fas fa-edit me-2"></i>Editar Datos Personales</h2>
+            <p class="mb-0 fs-5">Modifica tu información básica y de contacto.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card form-card">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-user-edit me-2"></i>Formulario de Edición
+                    </div>
+                    <div class="card-body">
+                        <!-- Formulario que debe apuntar a un @PostMapping("/auth/profile/edit") -->
+                        <form th:action="@{/auth/profile/edit}" method="post">
+
+                            <!-- Mensajes de Alerta -->
+                            <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}">¡Datos actualizados con éxito!</div>
+                            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}">Ocurrió un error al actualizar los datos.</div>
+
+                            <input type="hidden" name="id" th:value="${usuario.id}">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombres" class="form-label fw-bold">Nombres</label>
+                                    <!-- AÑADIDA CLASE form-value-box -->
+                                    <input type="text" class="form-control form-value-box" id="nombres" name="nombres" th:value="${usuario.nombres}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="apellidos" class="form-label fw-bold">Apellidos</label>
+                                    <!-- AÑADIDA CLASE form-value-box -->
+                                    <input type="text" class="form-control form-value-box" id="apellidos" name="apellidos" th:value="${usuario.apellidos}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="usuario_login" class="form-label fw-bold">Usuario (Login)</label>
+                                    <!-- AÑADIDA CLASE form-value-box -->
+                                    <input type="text" class="form-control form-value-box" id="usuario_login" name="usuario" th:value="${usuario.usuario}" readonly disabled>
+                                    <div class="form-text">El nombre de usuario no se puede cambiar.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="rol" class="form-label fw-bold">Rol</label>
+                                    <!-- AÑADIDA CLASE form-value-box -->
+                                    <input type="text" class="form-control form-value-box" id="rol" th:value="${usuario.rol}" readonly disabled>
+                                </div>
+                            </div>
+
+                            <!-- Campos Condicionales para Docente -->
+                            <div th:if="${usuario.getClass().getSimpleName() == 'Docente'}">
+                                <div class="mb-3">
+                                    <label for="materia" class="form-label fw-bold">Materia</label>
+                                    <!-- AÑADIDA CLASE form-value-box -->
+                                    <input type="text" class="form-control form-value-box" id="materia" name="materia" th:value="${usuario.materia}">
+                                </div>
+                            </div>
+
+                            <!-- Campos Condicionales para Estudiante -->
+                            <div th:if="${usuario.getClass().getSimpleName() == 'Estudiante'}">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="grado" class="form-label fw-bold">Grado</label>
+                                        <!-- AÑADIDA CLASE form-value-box -->
+                                        <input type="text" class="form-control form-value-box" id="grado" name="grado" th:value="${usuario.grado}" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="seccion" class="form-label fw-bold">Sección</label>
+                                        <!-- AÑADIDA CLASE form-value-box -->
+                                        <input type="text" class="form-control form-value-box" id="seccion" name="seccion" th:value="${usuario.seccion}" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="fechaNacimiento" class="form-label fw-bold">Fecha de Nacimiento</label>
+                                        <!-- AÑADIDA CLASE form-value-box -->
+                                        <input type="date" class="form-control form-value-box" id="fechaNacimiento" name="fechaNacimiento"
+                                               th:value="${usuario.fechaNacimiento != null ? #dates.format(usuario.fechaNacimiento, 'yyyy-MM-dd') : ''}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/auth/profile}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar y Volver
+                                </a>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Incidente - Director</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body { background-color: #eef1f6; }
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; position: fixed; width: 250px; z-index: 1000; }
+        .sidebar .nav-link { color: white; padding: 0.75rem 1rem; margin: 0.25rem 0; border-radius: 0.5rem; transition: all 0.3s ease; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); }
+        .main-content { margin-left: 250px; padding: 20px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .page-header h2 { color: #343a40; font-weight: 600; }
+        .page-header p { color: #6c757d; }
+        .card-header { background-color: #fff; border-bottom: 1px solid #e9ecef; padding: 1.25rem 1.75rem; }
+        .card-body { padding: 1.5rem 1.75rem; }
+
+        /* Estilos específicos para esta página de detalles */
+        .detail-item { margin-bottom: 1rem; }
+        .detail-item strong {
+            color: #555;
+            font-weight: 600;
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .detail-item span {
+            color: #333;
+            font-size: 1rem;
+        }
+        .card-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Badges (copiados de la página de incidentes) */
+        .badge-success-light { background-color: rgba(40, 167, 69, 0.15); color: #28a745 !important; }
+        .badge-warning-light { background-color: rgba(255, 193, 7, 0.15); color: #ffc107 !important; }
+        .badge-danger-light { background-color: rgba(220, 53, 69, 0.15); color: #dc3545 !important; }
+
+
+        .badge.bg-success, .badge.bg-warning, .badge.bg-secondary, .badge.bg-info {
+            color: #e0f7fa !important; /* Un color oscuro para que contraste */
+            font-weight: 500; /* Un poco más de grosor para la lectura */
+        }
+
+    </style>
+</head>
+<body>
+
+<div th:replace="~{director/dashboard :: sidebar}"></div>
+
+<div class="main-content">
+
+    <div class="page-header mb-4">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2><i class="fas fa-file-alt me-2"></i>Detalle de Incidente</h2>
+                <p class="mb-0">Información completa del registro
+                    <span th:if="${incidente?.idRegistro}" th:text="'#' + ${incidente.idRegistro}"></span>
+                </p>
+            </div>
+            <div class="col-auto">
+                <a th:href="@{/director/incidentes}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a la lista
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-7">
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-user-graduate me-2 text-primary"></i>Estudiante Involucrado</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 detail-item">
+                            <strong>Nombre Completo</strong>
+                            <span th:text="${incidente.estudiante.nombres + ' ' + incidente.estudiante.apellidos}"></span>
+                        </div>
+                        <div class="col-md-6 detail-item">
+                            <strong>Grado y Sección</strong>
+                            <span th:text="${incidente.estudiante.grado + '° ' + incidente.estudiante.seccion}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-gavel me-2 text-danger"></i>Detalles de la Conducta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 detail-item">
+                            <strong>Conducta Reportada</strong>
+                            <span th:text="${incidente.conducta.nombreConducta}"></span>
+                        </div>
+                        <div class="col-md-6 detail-item">
+                            <strong>Gravedad</strong>
+                            <span class="badge rounded-pill text-uppercase"
+                                  th:classappend="${#strings.equalsIgnoreCase(incidente.conducta.gravedad.nombreGravedad, 'Leve')} ? 'badge-success-light' : (${#strings.equalsIgnoreCase(incidente.conducta.gravedad.nombreGravedad, 'Grave')} ? 'badge-warning-light' : 'badge-danger-light')"
+                                  th:text="${incidente.conducta.gravedad.nombreGravedad}">
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Descripción de la Conducta</strong>
+                        <p th:text="${incidente.conducta.descripcion}" class="mb-0"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-user-tie me-2 text-info"></i>Información del Reporte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="detail-item">
+                        <strong>Reportado por (Docente)</strong>
+                        <span th:text="${incidente.docente.nombres + ' ' + incidente.docente.apellidos}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Fecha de Registro</strong>
+                        <span th:text="${#temporals.format(incidente.fechaRegistro, 'dd/MM/yyyy')}"></span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Observaciones del Docente</strong>
+                        <p th:text="${incidente.observaciones}" class="text-muted fst-italic mb-0"></p>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Comentarios (Director)</strong>
+                        <p th:text="${incidente.comentarios}" class="text-muted fst-italic mb-0"></p>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Acciones Tomadas (Director)</strong>
+                        <p th:text="${incidente.accionesTomadas}" class="text-muted fst-italic mb-0"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-clipboard-check me-2 text-success"></i>Estado del Incidente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 detail-item">
+                            <strong>Estado Actual</strong>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'ACTIVO')}" class="badge bg-warning fs-6">Activo</span>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'RESUELTO')}" class="badge bg-success fs-6">Resuelto</span>
+                            <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'ARCHIVADO')}" class="badge bg-secondary fs-6">Archivado</span>
+                        </div>
+                        <div class="col-md-6 detail-item">
+                            <strong>Estado de Lectura</strong>
+                            <span th:if="${incidente.leido}" class="badge bg-success fs-6"><i class="fas fa-check me-1"></i> Leído</span>
+                            <span th:unless="${incidente.leido}" class="badge bg-warning fs-6"><i class="fas fa-clock me-1"></i> No Leído</span>
+                        </div>
+                    </div>
+                    <div th:if="${incidente.fechaLectura}" class="detail-item mb-0">
+                        <strong>Fecha de Lectura</strong>
+                        <span th:text="${#temporals.format(incidente.fechaLectura, 'dd/MM/yyyy')}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${incidente.evidenciaUrl != null and incidente.evidenciaUrl != ''}" class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="fas fa-paperclip me-2 text-secondary"></i>Evidencia</h5>
+                </div>
+                <div class="card-body text-center">
+                    <a th:href="${incidente.evidenciaUrl}" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-external-link-alt me-2"></i>Ver Evidencia Adjunta
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

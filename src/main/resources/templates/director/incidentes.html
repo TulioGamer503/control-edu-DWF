@@ -14,12 +14,39 @@
         .sidebar .nav-link { color: white; padding: 0.75rem 1rem; margin: 0.25rem 0; border-radius: 0.5rem; transition: all 0.3s ease; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); }
         .main-content { margin-left: 250px; padding: 20px; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
         .page-header h2 { color: #343a40; font-weight: 600; }
         .page-header p { color: #6c757d; }
-        .card-header { background-color: #fff; border-bottom: 1px solid #e9ecef; padding: 1.25rem 1.75rem; }
-        .table thead { border-bottom: 2px solid #e9ecef; }
-        .table th { font-weight: 600; color: #495057; }
+        .card-header {
+            background-color: #fff; /* Fondo blanco limpio */
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.75rem;
+        }
+        .card-header .card-title {
+            font-weight: 600; /* <-- MEJORA: Título del card más grueso */
+            color: #333;
+        }
+
+
+        .table thead th {
+            background-color: #f8f9fa; /* Fondo gris claro para la cabecera */
+            text-transform: uppercase; /* Mayúsculas */
+            font-size: 0.75rem;        /* Texto más pequeño y moderno */
+            letter-spacing: 0.5px;   /* Más espaciado */
+            color: #555;
+            border-bottom: 2px solid #dee2e6; /* Borde inferior más grueso */
+        }
+        .table .actions-cell {
+            white-space: nowrap; /* Evita que los botones se partan en dos líneas */
+            width: 1%;           /* Ocupa solo el espacio necesario */
+        }
+
+
         .table-hover > tbody > tr:hover { background-color: rgba(102, 126, 234, 0.05); }
         .table td, .table th { vertical-align: middle; }
         .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25); }
@@ -32,14 +59,24 @@
 <div th:replace="~{director/dashboard :: sidebar}"></div>
 
 <div class="main-content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+
     <div class="page-header mb-4">
         <div class="row align-items-center">
             <div class="col">
                 <h2><i class="fas fa-exclamation-triangle me-2"></i>Gestión de Incidentes</h2>
                 <p class="mb-0">Visualiza y gestiona todos los incidentes registrados</p>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-light"><i class="fas fa-download me-2"></i>Exportar</button>
             </div>
         </div>
     </div>
@@ -111,7 +148,7 @@
                                   th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
                         </td>
                         <td th:text="${incidente.docente.nombres}"></td>
-                        <td th:text="${#temporals.format(incidente.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#temporals.format(incidente.fechaRegistro, 'dd/MM/yyyy')}"></td>
                         <td>
                             <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'ACTIVO')}" class="badge bg-warning">Activo</span>
                             <span th:if="${#strings.equalsIgnoreCase(incidente.estado, 'RESUELTO')}" class="badge bg-success">Resuelto</span>
@@ -121,10 +158,26 @@
                             <span th:if="${incidente.leido}" class="badge bg-success"><i class="fas fa-check"></i></span>
                             <span th:unless="${incidente.leido}" class="badge bg-warning"><i class="fas fa-clock"></i></span>
                         </td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary" title="Ver detalles"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-outline-info" title="Marcar como leído"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-sm btn-outline-success" title="Resolver"><i class="fas fa-check-double"></i></button>
+
+                        <td class="text-center actions-cell">
+                            <a th:href="@{/director/incidentes/detalle/{id}(id=${incidente.idRegistro})}"
+                               class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            <form th:action="@{/director/incidentes/marcar-leido/{id}(id=${incidente.idRegistro})}" method="POST" class="d-inline ms-1">
+                                <button type="submit" class="btn btn-sm btn-outline-info" title="Marcar como leído"
+                                        th:disabled="${incidente.leido}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+
+                            <form th:action="@{/director/incidentes/resolver/{id}(id=${incidente.idRegistro})}" method="POST" class="d-inline ms-1">
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Resolver"
+                                        th:disabled="${#strings.equalsIgnoreCase(incidente.estado, 'RESUELTO')}">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     </tbody>
@@ -173,18 +226,24 @@
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+
+<script th:inline="none">
     $(document).ready(function() {
         var table = $('#incidentsTable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json'
             },
             pageLength: 10,
-            order: [[ 5, "desc" ]] // Ordenar por fecha (columna 5) descendente por defecto
+            order: [[ 5, "desc" ]] // Columna 5 (Fecha)
         });
 
-        // El filtro de DataTables busca en el contenido renderizado de la celda.
-        // Asegúrate que el texto buscado coincida exactamente (ej. 'Leve', '1°', 'Activo').
+
+        $('.alert').delay(4000).fadeOut(500, function() {
+            $(this).remove();
+        });
+
+
+
         $('#filterGravedad').on('change', function() {
             table.column(3).search(this.value).draw();
         });
