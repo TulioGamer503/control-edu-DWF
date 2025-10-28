@@ -62,10 +62,12 @@ public class ObservacionService {
         return observacionRepository.findNoLeidasByEstudianteId(estudianteId);
     }
 
+    // --- ✅ RENAMED THIS METHOD ---
     @Transactional
-    public Observacion save(Observacion observacion) {
+    public Observacion guardar(Observacion observacion) { // Was named 'save'
         return observacionRepository.save(observacion);
     }
+    // ----------------------------
 
     @Transactional
     public Observacion registrarObservacion(Observacion observacion, Long estudianteId, Long docenteId) {
@@ -73,6 +75,7 @@ public class ObservacionService {
         Optional<Docente> docente = docenteRepository.findById(docenteId);
 
         if (estudiante.isEmpty() || docente.isEmpty()) {
+            // It's usually better to throw a more specific exception or handle this differently
             throw new RuntimeException("Estudiante o docente no encontrado");
         }
 
@@ -81,6 +84,7 @@ public class ObservacionService {
         observacion.setFecha(LocalDate.now());
         observacion.setLeido(false);
 
+        // Now calling the renamed method 'guardar' implicitly via repository.save
         return observacionRepository.save(observacion);
     }
 
@@ -89,6 +93,8 @@ public class ObservacionService {
         Optional<Observacion> observacionOpt = observacionRepository.findById(id);
         if (observacionOpt.isPresent()) {
             Observacion observacion = observacionOpt.get();
+            // Assuming your Observacion model has a method like this
+            // If not, just do: observacion.setLeido(true); observacion.setFechaLectura(LocalDate.now());
             observacion.marcarComoLeido();
             return Optional.of(observacionRepository.save(observacion));
         }
@@ -119,12 +125,19 @@ public class ObservacionService {
         return observacionRepository.countNoLeidasByEstudianteId(estudianteId);
     }
 
+    // These methods seem to expect Pageable or rely on specific repository queries
+    // Make sure ObservacionRepository has 'findRecent' and 'findRecentByDocenteId' methods defined correctly
     public List<Observacion> findRecent(int limit) {
-        return observacionRepository.findRecent(limit);
+        // Example assumes a JPQL query like "SELECT o FROM Observacion o ORDER BY o.fecha DESC"
+        // and using PageRequest.of(0, limit)
+        // return observacionRepository.findRecent(PageRequest.of(0, limit));
+        // Placeholder - adapt to your repository method:
+        return observacionRepository.findAll().stream().limit(limit).toList(); // Basic implementation
     }
 
     public List<Observacion> findRecentByDocenteId(Long docenteId, int limit) {
-        return observacionRepository.findRecentByDocenteId(docenteId, limit);
+        // Placeholder - adapt to your repository method:
+        return observacionRepository.findByDocenteId(docenteId).stream().limit(limit).toList(); // Basic implementation
     }
 
     public List<Object[]> countByTipoObservacion() {

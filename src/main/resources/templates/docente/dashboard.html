@@ -51,10 +51,10 @@
             padding: 2rem;
             margin-bottom: 2rem;
         }
+        /* No necesitamos .badge-leve etc aquí, usamos bg-* directamente */
     </style>
 </head>
 <body>
-<!-- Sidebar -->
 <div class="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
@@ -87,8 +87,7 @@
                 <i class="fas fa-history me-2"></i>Mi Historial
             </a>
             <hr>
-            <a class="nav-link" th:href="@{/auth/profile}">
-                <i class="fas fa-user me-2"></i>Perfil
+            <a class="nav-link" th:href="@{/docente/perfil}"> <i class="fas fa-user me-2"></i>Perfil
             </a>
             <a class="nav-link text-danger" th:href="@{/auth/logout}">
                 <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
@@ -97,9 +96,7 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Welcome Header -->
     <div class="welcome-header">
         <div class="row align-items-center">
             <div class="col">
@@ -112,7 +109,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-6">
             <div class="card stat-card text-white bg-warning">
@@ -146,35 +142,34 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="row g-4 mb-4">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header bg-warning text-white">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>Registrar Falta de Conducta
                     </h5>
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
                     <p>Registra una nueva falta de conducta de un estudiante</p>
-                    <a th:href="@{/docente/registrar-falta}" class="btn btn-warning">
+                    <a th:href="@{/docente/registrar-falta}" class="btn btn-warning mt-auto">
                         <i class="fas fa-plus me-2"></i>Registrar Falta
                     </a>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-header bg-info text-white">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-clipboard-list me-2"></i>Registrar Observación
                     </h5>
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
                     <i class="fas fa-clipboard-check fa-3x text-info mb-3"></i>
                     <p>Agrega una observación sobre el comportamiento de un estudiante</p>
-                    <a th:href="@{/docente/registrar-observacion}" class="btn btn-info">
+                    <a th:href="@{/docente/registrar-observacion}" class="btn btn-info mt-auto">
                         <i class="fas fa-plus me-2"></i>Registrar Observación
                     </a>
                 </div>
@@ -182,37 +177,39 @@
         </div>
     </div>
 
-    <!-- Recent Incidents -->
     <div class="card">
         <div class="card-header">
             <h5 class="card-title mb-0">
-                <i class="fas fa-history me-2"></i>Incidentes Recientes
+                <i class="fas fa-history me-2"></i>Incidentes Recientes Registrados por Ti
             </h5>
         </div>
         <div class="card-body">
-            <div th:if="${incidentesRecientes.empty}" class="text-center text-muted py-4">
-                <i class="fas fa-check-circle fa-2x mb-3"></i>
+            <div th:if="${incidentesRecientes == null or incidentesRecientes.empty}" class="text-center text-muted py-4">
+                <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
                 <p>No has registrado incidentes recientemente</p>
             </div>
-            <div th:each="incidente : ${incidentesRecientes}" class="border-bottom pb-3 mb-3">
+            <div th:if="${incidentesRecientes != null}" th:each="incidente : ${incidentesRecientes}" class="border-bottom pb-3 mb-3">
                 <div class="row">
                     <div class="col-md-8">
-                        <h6 th:text="${incidente.estudiante.nombres + ' ' + incidente.estudiante.apellidos}"></h6>
-                        <p class="mb-1" th:text="${incidente.conducta.nombreConducta}"></p>
-                        <small class="text-muted" th:text="${incidente.accionesTomadas}"></small>
+                        <h6 th:text="${incidente.estudiante?.nombres + ' ' + incidente.estudiante?.apellidos}">Estudiante no encontrado</h6>
+                        <p class="mb-1" th:text="${incidente.conducta?.nombreConducta}">Conducta no especificada</p>
+                        <small class="text-muted" th:text="${incidente.accionesTomadas ?: 'Sin acciones'}"></small>
                     </div>
                     <div class="col-md-4 text-end">
-                            <span class="badge" th:classappend="${incidente.conducta.gravedad.nombreGravedad == 'leve' ? 'bg-warning' :
-                                                                incidente.conducta.gravedad.nombreGravedad == 'grave' ? 'bg-danger' :
-                                                                'bg-dark'}">
-                                <span th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
-                            </span>
+                        <span th:if="${incidente.conducta?.gravedad?.nombreGravedad}"
+                              th:switch="${incidente.conducta.gravedad.nombreGravedad}">
+                            <span th:case="'leve'" class="badge bg-warning" th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="'grave'" class="badge bg-danger" th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="'muy grave'" class="badge bg-dark" th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="*" class="badge bg-secondary" th:text="${incidente.conducta.gravedad.nombreGravedad}"></span>
+                        </span>
+                        <span th:unless="${incidente.conducta?.gravedad?.nombreGravedad}" class="badge bg-secondary">Sin Gravedad</span>
                         <br>
-                        <small class="text-muted" th:text="${#temporals.format(incidente.fechaRegistro)}"></small>
+                        <small class="text-muted" th:text="${incidente.fechaRegistro != null ? #temporals.format(incidente.fechaRegistro) : 'Sin fecha'}"></small>
                     </div>
                 </div>
             </div>
-            <a th:href="@{/docente/historial}" class="btn btn-outline-primary btn-sm w-100">
+            <a th:href="@{/docente/historial}" class="btn btn-outline-primary btn-sm w-100 mt-3">
                 Ver Todo el Historial
             </a>
         </div>

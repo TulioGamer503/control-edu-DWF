@@ -36,7 +36,9 @@ public class ObservacionApiController {
     @PostMapping
     @Operation(summary = "Crear nueva observación")
     public ResponseEntity<Observacion> createObservacion(@RequestBody Observacion observacion) {
-        Observacion savedObservacion = observacionService.save(observacion);
+        // --- CORRECCIÓN AQUÍ ---
+        Observacion savedObservacion = observacionService.guardar(observacion); // Changed save to guardar
+        // -------------------------
         return ResponseEntity.ok(savedObservacion);
     }
 
@@ -46,8 +48,10 @@ public class ObservacionApiController {
         if (!observacionService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        observacion.setIdObservacion(id);
-        Observacion updatedObservacion = observacionService.save(observacion);
+        observacion.setIdObservacion(id); // Make sure the ID from the path is set on the object
+        // --- CORRECCIÓN AQUÍ ---
+        Observacion updatedObservacion = observacionService.guardar(observacion); // Changed save to guardar
+        // -------------------------
         return ResponseEntity.ok(updatedObservacion);
     }
 

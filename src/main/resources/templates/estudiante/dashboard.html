@@ -51,9 +51,10 @@
             padding: 2rem;
             margin-bottom: 2rem;
         }
-        .badge-leve { background-color: #ffc107; }
-        .badge-grave { background-color: #dc3545; }
-        .badge-muy-grave { background-color: #6c757d; }
+        /* Clases de badge definidas aquí */
+        .badge-leve { background-color: #ffc107; color: #000; } /* Warning */
+        .badge-grave { background-color: #dc3545; } /* Danger */
+        .badge-muy-grave { background-color: #6c757d; } /* Secondary */
     </style>
 </head>
 <body>
@@ -169,30 +170,30 @@
                 <p>¡Excelente! No tienes faltas recientes</p>
                 <p class="text-muted">Sigue manteniendo tu buen comportamiento</p>
             </div>
-
             <div th:if="${faltasRecientes != null}" th:each="falta : ${faltasRecientes}" class="border-bottom pb-3 mb-3">
                 <div class="row">
                     <div class="col-md-8">
-                        <h6 th:text="${falta.conducta.nombreConducta}"></h6>
-                        <p class="mb-1 text-muted" th:text="${falta.conducta.descripcion}"></p>
+                        <h6 th:text="${falta.conducta?.nombreConducta}">Falta sin nombre</h6>
+                        <p class="mb-1 text-muted" th:text="${falta.conducta?.descripcion}">Sin descripción</p>
                         <small class="text-muted">
-                            Registrado por: <span th:text="${falta.docente.nombres + ' ' + falta.docente.apellidos}"></span>
+                            Registrado por: <span th:text="${falta.docente?.nombres + ' ' + falta.docente?.apellidos}">Docente Desconocido</span>
                         </small>
                     </div>
                     <div class="col-md-4 text-end">
-                            <span th:classappend="'badge ' +
-                                (falta.conducta.gravedad.nombreGravedad == 'leve' ? 'badge-leve' :
-                                 falta.conducta.gravedad.nombreGravedad == 'grave' ? 'badge-grave' :
-                                 'badge-muy-grave')">
-                                <span th:text="${falta.conducta.gravedad.nombreGravedad}"></span>
-                            </span>
+                        <span th:if="${falta.conducta?.gravedad?.nombreGravedad}"
+                              th:switch="${falta.conducta.gravedad.nombreGravedad}">
+                            <span th:case="'leve'" class="badge badge-leve" th:text="${falta.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="'grave'" class="badge badge-grave" th:text="${falta.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="'muy grave'" class="badge badge-muy-grave" th:text="${falta.conducta.gravedad.nombreGravedad}"></span>
+                            <span th:case="*" class="badge bg-secondary" th:text="${falta.conducta.gravedad.nombreGravedad}"></span>
+                        </span>
+                        <span th:unless="${falta.conducta?.gravedad?.nombreGravedad}" class="badge bg-secondary">Sin Gravedad</span>
                         <br>
-                        <small class="text-muted" th:text="${#temporals.format(falta.fechaRegistro)}"></small>
+                        <small class="text-muted" th:text="${falta.fechaRegistro != null ? #temporals.format(falta.fechaRegistro) : 'Sin fecha'}"></small>
                     </div>
                 </div>
             </div>
-            <a th:href="@{/estudiante/historial}" class="btn btn-outline-primary btn-sm w-100">
-                Ver Todo Mi Historial
+            <a th:href="@{/estudiante/historial}" class="btn btn-outline-primary btn-sm w-100 mt-3"> Ver Todo Mi Historial
             </a>
         </div>
     </div>

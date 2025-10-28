@@ -22,6 +22,7 @@ public class RegistroConductaService {
     private final DocenteRepository docenteRepository;
     private final ConductaRepository conductaRepository;
 
+    // --- Existing Methods ---
     public List<RegistroConducta> findAll() { return registroConductaRepository.findAll(); }
     public Optional<RegistroConducta> findById(Long id) { return registroConductaRepository.findById(id); }
     public List<RegistroConducta> findByEstudianteId(Long estudianteId) { return registroConductaRepository.findByEstudianteIdOrderByFechaRegistroDesc(estudianteId); }
@@ -41,7 +42,8 @@ public class RegistroConductaService {
         registro.setEstudiante(estudiante);
         registro.setDocente(docente);
         registro.setConducta(conducta);
-        registro.setObservaciones(observaciones);
+        // Changed field name from 'observaciones' to 'accionesTomadas' to match controller
+        registro.setAccionesTomadas(observaciones);
         registro.setFechaRegistro(LocalDate.now());
         registro.setLeido(false);
         registro.setEstado("ACTIVO");
@@ -71,20 +73,22 @@ public class RegistroConductaService {
     public long countByEstado(String estado) { return registroConductaRepository.countByEstado(estado); }
     public long countByLeido(boolean leido) { return registroConductaRepository.countByLeido(leido); }
     public long countByDocenteId(Long docenteId) { return registroConductaRepository.countByDocenteId(docenteId); }
-
-    // ✅ MÉTODO AÑADIDO
-    public long countByEstudianteId(Long estudianteId) {
-        return registroConductaRepository.countByEstudianteId(estudianteId);
-    }
+    public long countByEstudianteId(Long estudianteId) { return registroConductaRepository.countByEstudianteId(estudianteId); }
 
     public List<RegistroConducta> findRecent(int count) {
-        if (count == 5) {
-            return registroConductaRepository.findTop5ByOrderByFechaRegistroDesc();
-        }
+        // Simplified this logic
         return registroConductaRepository.findTop5ByOrderByFechaRegistroDesc();
     }
 
     public List<Object[]> countByGravedad() { return registroConductaRepository.countByGravedad(); }
     public List<Object[]> countByGrado() { return registroConductaRepository.countByGrado(); }
     public List<Object[]> countByMes() { return registroConductaRepository.countByMes(); }
+
+    // --- ✅ MÉTODO GUARDAR AÑADIDO ---
+    @Transactional // Good practice to add Transactional for save operations
+    public RegistroConducta guardar(RegistroConducta registroConducta) {
+        // It simply calls the repository's save method
+        return registroConductaRepository.save(registroConducta);
+    }
+    // ---------------------------------
 }
