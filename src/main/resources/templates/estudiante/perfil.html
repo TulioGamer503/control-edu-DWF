@@ -60,7 +60,6 @@
     </style>
 </head>
 <body>
-<!-- Sidebar -->
 <div class="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
@@ -100,9 +99,7 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
@@ -113,7 +110,6 @@
     </div>
 
     <div class="row">
-        <!-- Profile Information -->
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header">
@@ -167,60 +163,22 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Fecha de Nacimiento</label>
-                                <p class="form-control-plaintext" th:text="${#temporals.format(estudiante.fechaNacimiento)}"></p>
+                                <p class="form-control-plaintext" th:text="${estudiante.fechaNacimiento != null ? #temporals.format(estudiante.fechaNacimiento, 'dd/MM/yyyy') : 'No registrada'}"></p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Edad</label>
-                                <p class="form-control-plaintext" th:text="${estudiante.edad + ' años'}"></p>
+                                <p class="form-control-plaintext" th:text="${estudiante.edad != null ? estudiante.edad + ' años' : 'N/A'}"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Behavior Statistics -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>Estadísticas de Comportamiento
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-3">
-                            <div class="stat-card border p-3 mb-3">
-                                <h4 class="text-primary" th:text="${totalFaltas}">0</h4>
-                                <small class="text-muted">Total Faltas</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card border p-3 mb-3">
-                                <h4 class="text-success" th:text="${totalObservaciones}">0</h4>
-                                <small class="text-muted">Observaciones</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card border p-3 mb-3">
-                                <h4 class="text-warning" th:text="${conductas.stream().filter(c -> c.conducta.gravedad.nombreGravedad == 'leve').count()}">0</h4>
-                                <small class="text-muted">Faltas Leves</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stat-card border p-3 mb-3">
-                                <h4 class="text-danger" th:text="${conductas.stream().filter(c -> c.conducta.gravedad.nombreGravedad == 'grave').count() + conductas.stream().filter(c -> c.conducta.gravedad.nombreGravedad == 'muy grave').count()}">0</h4>
-                                <small class="text-muted">Faltas Graves</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Sidebar Actions -->
         <div class="col-md-4">
-            <!-- Quick Actions -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
@@ -242,39 +200,6 @@
                 </div>
             </div>
 
-            <!-- Behavior Tips -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-graduation-cap me-2"></i>Mi Progreso
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div th:if="${totalFaltas == 0}" class="text-center text-success">
-                        <i class="fas fa-trophy fa-2x mb-2"></i>
-                        <p class="mb-0"><strong>¡Excelente!</strong></p>
-                        <small>No tienes faltas registradas</small>
-                    </div>
-                    <div th:if="${totalFaltas > 0}" class="text-center">
-                        <div class="mb-3">
-                            <strong>Nivel de Comportamiento</strong>
-                            <div class="progress mt-2">
-                                <div class="progress-bar"
-                                     th:classappend="${totalFaltas <= 2 ? 'bg-success' : totalFaltas <= 5 ? 'bg-warning' : 'bg-danger'}"
-                                     th:style="'width: ' + ${100 - (totalFaltas * 10)} + '%;'">
-                                </div>
-                            </div>
-                        </div>
-                        <small class="text-muted">
-                            <span th:if="${totalFaltas <= 2}">¡Buen comportamiento!</span>
-                            <span th:if="${totalFaltas > 2 and totalFaltas <= 5}">Puedes mejorar</span>
-                            <span th:if="${totalFaltas > 5}">Necesitas atención</span>
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Information -->
             <div class="card">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
@@ -286,14 +211,13 @@
                         <p><strong>ControlEdu v1.0</strong></p>
                         <p>Sistema de Gestión Conductual</p>
                         <p class="mb-1">Tu rol: <span class="badge bg-info">Estudiante</span></p>
-                        <p class="mb-0">Último acceso: <span th:text="${#temporals.format(#dates.createNow())}"></span></p>
+                        <p class="mb-0">Último acceso: <span th:text="${#temporals.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}"></span></p>
                     </small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Goals Section -->
     <div class="card mt-4">
         <div class="card-header">
             <h5 class="card-title mb-0">

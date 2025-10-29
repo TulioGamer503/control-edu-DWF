@@ -49,7 +49,6 @@
     </style>
 </head>
 <body>
-<!-- Sidebar -->
 <div class="sidebar">
     <div class="p-4">
         <h4 class="text-center mb-4">
@@ -85,8 +84,7 @@
                 <i class="fas fa-chart-bar me-2"></i>Reportes
             </a>
             <hr>
-            <a class="nav-link" th:href="@{/auth/profile}">
-                <i class="fas fa-user me-2"></i>Perfil
+            <a class="nav-link" th:href="@{/director/perfil}"> <i class="fas fa-user me-2"></i>Perfil
             </a>
             <a class="nav-link text-danger" th:href="@{/auth/logout}">
                 <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
@@ -95,9 +93,7 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="main-content">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="row align-items-center">
             <div class="col">
@@ -117,7 +113,6 @@
         </div>
     </div>
 
-    <!-- Date Range Filter -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
@@ -147,7 +142,6 @@
         </div>
     </div>
 
-    <!-- Charts Row 1 -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="chart-container">
@@ -167,7 +161,6 @@
         </div>
     </div>
 
-    <!-- Charts Row 2 -->
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="chart-container">
@@ -187,7 +180,6 @@
         </div>
     </div>
 
-    <!-- Summary Statistics -->
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -224,13 +216,13 @@
                         </div>
                         <div class="col-md-2">
                             <div class="border rounded p-3">
-                                <h3 class="text-danger" th:text="${#numbers.formatDecimal(estudianteService.count() > 0 ? totalIncidentes / estudianteService.count(), 1, 2)}">0</h3>
+                                <h3 class="text-danger" th:text="${#numbers.formatDecimal(promedioIncidentes, 1, 2)}">0.00</h3>
                                 <small class="text-muted">Promedio por Estudiante</small>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="border rounded p-3">
-                                <h3 class="text-dark" th:text="${grados.size()}">0</h3>
+                                <h3 class="text-dark" th:text="${#lists.size(grados)}">0</h3>
                                 <small class="text-muted">Grados Activos</small>
                             </div>
                         </div>
@@ -242,101 +234,82 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Pass data from Thymeleaf model to JavaScript safely
+    const datosGravedad = /*[[${datosGravedad}]]*/ [] || []; // Default to empty array if null
+    const datosGrado = /*[[${datosGrado}]]*/ [] || [];
+    const datosMes = /*[[${datosMes}]]*/ [] || [];
+    const topConductas = /*[[${topConductas}]]*/ [] || [];
+
     document.addEventListener('DOMContentLoaded', function() {
         // Gravedad Chart (Pie)
         const gravedadCtx = document.getElementById('gravedadChart').getContext('2d');
-        const gravedadChart = new Chart(gravedadCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Leves', 'Graves', 'Muy Graves'],
-                datasets: [{
-                    data: [
-                        [[${conductasPorGravedad}]].find(d => d[0] === 'leve')?.[1] || 0,
-                        [[${conductasPorGravedad}]].find(d => d[0] === 'grave')?.[1] || 0,
-                        [[${conductasPorGravedad}]].find(d => d[0] === 'muy grave')?.[1] || 0
-                    ],
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
+        const gravedadData = {
+            labels: datosGravedad.map(d => d[0]), // Extract labels (gravedad names)
+            datasets: [{
+                data: datosGravedad.map(d => d[1]), // Extract counts
+                backgroundColor: datosGravedad.map(d => {
+                    if (d[0].toLowerCase() === 'leve') return '#ffc107'; // Warning
+                    if (d[0].toLowerCase() === 'grave') return '#dc3545'; // Danger
+                    if (d[0].toLowerCase() === 'muy grave') return '#6c757d'; // Secondary
+                    return '#0d6efd'; // Default Blue
+                }),
+                hoverOffset: 4
+            }]
+        };
+        new Chart(gravedadCtx, { type: 'pie', data: gravedadData, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
 
         // Grado Chart (Bar)
         const gradoCtx = document.getElementById('gradoChart').getContext('2d');
-        const gradoChart = new Chart(gradoCtx, {
-            type: 'bar',
-            data: {
-                labels: [[${conductasPorGrado}]].map(d => d[0]),
-                datasets: [{
-                    label: 'Incidentes por Grado',
-                    data: [[${conductasPorGrado}]].map(d => d[1]),
-                    backgroundColor: '#007bff'
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        const gradoData = {
+            labels: datosGrado.map(d => d[0]), // Extract labels (grado)
+            datasets: [{
+                label: 'Incidentes por Grado',
+                data: datosGrado.map(d => d[1]), // Extract counts
+                backgroundColor: '#28a745', // Success Green
+                borderColor: '#218838',
+                borderWidth: 1
+            }]
+        };
+        new Chart(gradoCtx, { type: 'bar', data: gradoData, options: { responsive: true, scales: { y: { beginAtZero: true } } } });
 
-        // Mensual Chart (Line) - Example data
+        // Mensual Chart (Line)
         const mensualCtx = document.getElementById('mensualChart').getContext('2d');
-        const mensualChart = new Chart(mensualCtx, {
-            type: 'line',
-            data: {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Incidentes Mensuales',
-                    data: [12, 19, 8, 15, 12, 10],
-                    borderColor: '#ffc107',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        // Process datosMes to create labels (Year-Month) and data points
+        const mesesLabels = datosMes.map(d => `${d[0]}-${String(d[1]).padStart(2, '0')}`); // Format YYYY-MM
+        const mesesData = datosMes.map(d => d[2]); // Extract counts
+        const mensualData = {
+            labels: mesesLabels,
+            datasets: [{
+                label: 'Incidentes Mensuales',
+                data: mesesData,
+                borderColor: '#ffc107', // Warning Yellow
+                backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        };
+        new Chart(mensualCtx, { type: 'line', data: mensualData, options: { responsive: true, scales: { y: { beginAtZero: true } } } });
 
         // Conductas Chart (Horizontal Bar)
         const conductasCtx = document.getElementById('conductasChart').getContext('2d');
-        const conductasChart = new Chart(conductasCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Falta respeto', 'Retraso tareas', 'Pelea aula', 'Uso celular', 'Desorden'],
-                datasets: [{
-                    label: 'Frecuencia',
-                    data: [15, 12, 8, 6, 5],
-                    backgroundColor: '#17a2b8'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        const conductasData = {
+            // Extract conduct name (assuming it's the second element, index 1)
+            labels: topConductas.map(d => d[1]),
+            datasets: [{
+                label: 'Frecuencia',
+                // Extract count (assuming it's the last element, index 5 or similar)
+                data: topConductas.map(d => d[d.length - 1]),
+                backgroundColor: '#0dcaf0', // Info Cyan
+                borderColor: '#0a97af',
+                borderWidth: 1
+            }]
+        };
+        new Chart(conductasCtx, { type: 'bar', data: conductasData, options: { indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true } } } });
+
     });
+    /*]]>*/
 </script>
 </body>
 </html>
