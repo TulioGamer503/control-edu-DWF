@@ -18,30 +18,51 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors; // <-- 1. IMPORTA COLLECTORS
 
+/**
+ * Controlador MVC para el rol ESTUDIANTE.
+ * Provee endpoints para:
+ * - Dashboard con métricas (faltas/observaciones) del estudiante autenticado.
+ * - Historial unificado (faltas + observaciones) ordenado por fecha.
+ * - Vistas separadas de conductas y observaciones con filtros/contadores.
+ * - Perfil del estudiante.
+ *
+ * Seguridad básica:
+ * - Todos los métodos verifican que exista un Estudiante en sesión (atributo "usuario").
+ */
 @Controller
 @RequestMapping("/estudiante")
 @RequiredArgsConstructor
 public class EstudianteController {
 
+    // Servicios de dominio que exponen consultas y operaciones de negocio.
     private final RegistroConductaService registroConductaService;
     private final ObservacionService observacionService;
 
     // --- DASHBOARD ---
+    /**
+     * Muestra el panel principal del estudiante con KPIs y últimos registros.
+     * Requiere que el estudiante esté autenticado (presente en sesión).
+     */
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
+        // Recupera el estudiante autenticado desde la sesión HTTP
         Estudiante estudiante = (Estudiante) session.getAttribute("usuario");
         if (estudiante == null) {
+            // Si no hay sesión válida, redirige a login
             return "redirect:/auth/login";
         }
 
+        // Métricas por estudiante
         long totalFaltas = registroConductaService.countByEstudianteId(estudiante.getId());
         long totalObservaciones = observacionService.countByEstudianteId(estudiante.getId());
 
+        // Listado (podría limitarse a “recientes” desde el servicio si se requiere)
         List<RegistroConducta> faltasRecientes = registroConductaService.findByEstudianteId(estudiante.getId());
         if (faltasRecientes == null) {
             faltasRecientes = new ArrayList<>();
         }
 
+        // Atributos para la vista
         model.addAttribute("estudiante", estudiante);
         model.addAttribute("totalFaltas", totalFaltas);
         model.addAttribute("totalObservaciones", totalObservaciones);
@@ -51,6 +72,10 @@ public class EstudianteController {
     }
 
     // --- HISTORIAL ---
+    /**
+     * Genera una línea de tiempo (timeline) combinando faltas y observaciones del estudiante.
+     * Los elementos se ordenan por fecha descendente.
+     */
     @GetMapping("/historial")
     public String historial(HttpSession session, Model model) {
         Estudiante estudiante = (Estudiante) session.getAttribute("usuario");
@@ -58,13 +83,15 @@ public class EstudianteController {
             return "redirect:/auth/login";
         }
 
+        // Cargar registros asociados al estudiante
         List<RegistroConducta> conductas = registroConductaService.findByEstudianteId(estudiante.getId());
         List<Observacion> observaciones = observacionService.findByEstudianteId(estudiante.getId());
 
+        // Evitar NPE utilizando listas vacías cuando sea necesario
         if (conductas == null) { conductas = new ArrayList<>(); }
         if (observaciones == null) { observaciones = new ArrayList<>(); }
 
-        // Cálculos de totales
+        // Cálculos de totales y por severidad (defensa ante nulos en el grafo de objetos)
         long totalFaltas = conductas.size();
         long faltasLeves = conductas.stream()
                 .filter(c -> c.getConducta() != null && c.getConducta().getGravedad() != null && c.getConducta().getGravedad().getNombreGravedad() != null &&
@@ -79,12 +106,12 @@ public class EstudianteController {
                         c.getConducta().getGravedad().getNombreGravedad().equalsIgnoreCase("muy grave"))
                 .count();
 
-        // Unir y ordenar listas para la línea de tiempo
+        // Unir faltas y observaciones en una sola lista heterogénea
         List<Object> timelineItems = new ArrayList<>();
         timelineItems.addAll(conductas);
         timelineItems.addAll(observaciones);
 
-        // (Ajusta LocalDate::compareTo si usas LocalDateTime)
+        // Ordenar por fecha descendente (si usas LocalDateTime, ajusta el comparador)
         timelineItems.sort(Comparator.comparing(item -> {
             if (item instanceof RegistroConducta) {
                 return ((RegistroConducta) item).getFechaRegistro();
@@ -94,7 +121,7 @@ public class EstudianteController {
             return null;
         }, Comparator.nullsLast(LocalDate::compareTo).reversed()));
 
-        // Agregar todo al modelo
+        // Exponer datos a la vista
         model.addAttribute("estudiante", estudiante);
         model.addAttribute("totalFaltas", totalFaltas);
         model.addAttribute("totalFaltasLeves", faltasLeves);
@@ -106,6 +133,9 @@ public class EstudianteController {
     }
 
     // --- 2. MÉTODO NUEVO: MIS CONDUCTAS ---
+    /**
+     * Vista específica para listar las faltas del estudiante, separadas por nivel de gravedad.
+     */
     @GetMapping("/conductas")
     public String misConductas(HttpSession session, Model model) {
         Estudiante estudiante = (Estudiante) session.getAttribute("usuario");
@@ -113,13 +143,13 @@ public class EstudianteController {
             return "redirect:/auth/login";
         }
 
-        // Obtener todas las conductas
+        // Recuperar todas las conductas del estudiante
         List<RegistroConducta> todasLasConductas = registroConductaService.findByEstudianteId(estudiante.getId());
         if (todasLasConductas == null) {
             todasLasConductas = new ArrayList<>();
         }
 
-        // Filtrar las listas (a prueba de nulos)
+        // Filtrar por severidad (con chequeos nulos defensivos)
         List<RegistroConducta> conductasLeves = todasLasConductas.stream()
                 .filter(c -> c.getConducta() != null && c.getConducta().getGravedad() != null && c.getConducta().getGravedad().getNombreGravedad() != null &&
                         c.getConducta().getGravedad().getNombreGravedad().equalsIgnoreCase("leve"))
@@ -135,7 +165,7 @@ public class EstudianteController {
                         c.getConducta().getGravedad().getNombreGravedad().equalsIgnoreCase("muy grave"))
                 .collect(Collectors.toList());
 
-        // Agregar al modelo
+        // Datos para la vista
         model.addAttribute("estudiante", estudiante);
         model.addAttribute("conductasLeves", conductasLeves);
         model.addAttribute("conductasGraves", conductasGraves);
@@ -145,6 +175,10 @@ public class EstudianteController {
     }
 
     // --- 3. MÉTODO NUEVO: MIS OBSERVACIONES ---
+    /**
+     * Vista específica para listar las observaciones del estudiante clasificadas por tipo.
+     * Calcula también los totales por categoría (positiva/negativa/otras).
+     */
     @GetMapping("/observaciones")
     public String misObservaciones(HttpSession session, Model model) {
         Estudiante estudiante = (Estudiante) session.getAttribute("usuario");
@@ -152,7 +186,7 @@ public class EstudianteController {
             return "redirect:/auth/login";
         }
 
-        // 1. Obtener todas las observaciones
+        // 1. Obtener todas las observaciones del estudiante
         List<Observacion> observaciones = observacionService.findByEstudianteId(estudiante.getId());
         if (observaciones == null) {
             observaciones = new ArrayList<>();
@@ -160,7 +194,7 @@ public class EstudianteController {
 
         // --- 2. LÓGICA DE FILTRADO Y CONTEO (MOVIDA DESDE EL HTML) ---
 
-        // Filtrar las listas (a prueba de nulos)
+        // Clasificar observaciones por tipo (defensivo ante nulos)
         List<Observacion> observacionesPositivas = observaciones.stream()
                 .filter(o -> o.getTipoObservacion() != null && o.getTipoObservacion().equalsIgnoreCase("positiva"))
                 .collect(Collectors.toList());
@@ -175,14 +209,14 @@ public class EstudianteController {
                         !o.getTipoObservacion().equalsIgnoreCase("negativa"))
                 .collect(Collectors.toList());
 
-        // Contar los totales
+        // Totales por categoría
         long totalPositivas = observacionesPositivas.size();
         long totalNegativas = observacionesNegativas.size();
         long totalOtras = observacionesOtras.size();
 
         // --- FIN DE LA LÓGICA ---
 
-        // 3. Agregar todo al modelo
+        // 3. Exponer resultados a la vista
         model.addAttribute("estudiante", estudiante);
 
         // Listas filtradas
@@ -195,13 +229,17 @@ public class EstudianteController {
         model.addAttribute("totalNegativas", totalNegativas);
         model.addAttribute("totalOtras", totalOtras);
 
-        // (La lista 'observaciones' original ya no es necesaria, pero la dejamos por si acaso)
+        // Lista original (por si la plantilla la requiere)
         model.addAttribute("observaciones", observaciones);
 
         return "estudiante/observaciones";
     }
 
     // --- 4. MÉTODO NUEVO: MI PERFIL ---
+    /**
+     * Muestra la vista del perfil del estudiante autenticado.
+     * No realiza consultas adicionales: usa el objeto de sesión.
+     */
     @GetMapping("/perfil")
     public String miPerfil(HttpSession session, Model model) {
         Estudiante estudiante = (Estudiante) session.getAttribute("usuario");
@@ -209,7 +247,7 @@ public class EstudianteController {
             return "redirect:/auth/login";
         }
 
-        // Solo necesitamos el estudiante, ya está en la sesión
+        // Adjunta el estudiante para renderizar su información en la vista
         model.addAttribute("estudiante", estudiante);
 
         return "estudiante/perfil";

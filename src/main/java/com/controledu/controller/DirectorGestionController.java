@@ -14,12 +14,19 @@ import java.util.List;
 /**
  * Controlador para todas las operaciones de gestión del Director.
  * Maneja docentes, estudiantes y conductas.
+ *
+ * Notas generales:
+ * - Todas las rutas están bajo el prefijo /director/gestion.
+ * - Se valida que exista un Director en sesión antes de renderizar/operar.
+ * - Se utilizan RedirectAttributes para mensajes flash (success/error).
+ * - El renderizado se hace con vistas tipo "director/*" (Thymeleaf u otro motor).
  */
 @Controller
 @RequestMapping("/director/gestion")
 @RequiredArgsConstructor
 public class DirectorGestionController {
 
+    // Servicios de dominio inyectados (lógica de negocio/persistencia)
     private final DocenteService docenteService;
     private final EstudianteService estudianteService;
     private final ConductaService conductaService;
@@ -31,9 +38,14 @@ public class DirectorGestionController {
 
     /**
      * Muestra la página de gestión de docentes.
+     * Carga:
+     * - Lista completa de docentes (docentes)
+     * - Un objeto vacío Docente para el formulario (docente)
+     * Además, adjunta el director autenticado al modelo.
      */
     @GetMapping("/docentes")
     public String gestionDocentes(Model model, HttpSession session) {
+        // Control de acceso básico por sesión
         Director director = (Director) session.getAttribute("usuario");
         if (director == null) {
             return "redirect:/auth/login";
@@ -47,6 +59,8 @@ public class DirectorGestionController {
 
     /**
      * Procesa la creación de un nuevo docente.
+     * Recibe el objeto mapeado desde el formulario con @ModelAttribute.
+     * En caso de éxito/error, fija un mensaje flash y redirige a la misma página.
      */
     @PostMapping("/docentes/crear")
     public String crearDocente(@ModelAttribute Docente docente, RedirectAttributes redirectAttributes) {
@@ -61,6 +75,7 @@ public class DirectorGestionController {
 
     /**
      * Procesa la edición de un docente existente.
+     * Se asume que el objeto Docente contiene el ID válido.
      */
     @PostMapping("/docentes/editar")
     public String editarDocente(@ModelAttribute Docente docente, RedirectAttributes redirectAttributes) {
@@ -75,6 +90,7 @@ public class DirectorGestionController {
 
     /**
      * Procesa la eliminación de un docente.
+     * La operación llega como GET con el {id} en la ruta.
      */
     @GetMapping("/docentes/eliminar/{id}")
     public String eliminarDocente(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -93,9 +109,14 @@ public class DirectorGestionController {
 
     /**
      * Muestra la página de gestión de estudiantes.
+     * Carga:
+     * - Lista completa de estudiantes (estudiantes)
+     * - Objeto Estudiante vacío para formulario (estudiante)
+     * - Catálogos de grados y secciones para filtros (grados, secciones)
      */
     @GetMapping("/estudiantes")
     public String gestionEstudiantes(Model model, HttpSession session) {
+        // Verificación de sesión y adjuntar director al modelo
         Director director = (Director) session.getAttribute("usuario");
         if (director == null) {
             return "redirect:/auth/login";
@@ -105,7 +126,7 @@ public class DirectorGestionController {
         model.addAttribute("estudiantes", estudianteService.findAll());
         model.addAttribute("estudiante", new Estudiante());
 
-        // Carga las listas de grados y secciones para los filtros del HTML
+        // Carga catálogos auxiliares para la vista (filtros/combos)
         model.addAttribute("grados", estudianteService.findAllGradosDistinct());
         model.addAttribute("secciones", estudianteService.findAllSeccionesDistinct());
 
@@ -128,11 +149,12 @@ public class DirectorGestionController {
 
     /**
      * Procesa la edición de un estudiante existente.
+     * Se asume que el objeto Estudiante trae el ID correspondiente.
      */
     @PostMapping("/estudiantes/editar")
     public String editarEstudiante(@ModelAttribute Estudiante estudiante, RedirectAttributes redirectAttributes) {
         try {
-            estudianteService.update(estudiante); // Suponiendo que tienes un método update en EstudianteService
+            estudianteService.update(estudiante); // Método update en EstudianteService
             redirectAttributes.addFlashAttribute("success", "Estudiante actualizado exitosamente.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al actualizar el estudiante: " + e.getMessage());
@@ -141,7 +163,7 @@ public class DirectorGestionController {
     }
 
     /**
-     * Procesa la eliminación de un estudiante.
+     * Procesa la eliminación de un estudiante por ID.
      */
     @GetMapping("/estudiantes/eliminar/{id}")
     public String eliminarEstudiante(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -160,10 +182,12 @@ public class DirectorGestionController {
     // =================================================================
 
     /**
-     * Muestra la página de gestión de conductas.
+     * Muestra la página de gestión de conductas (reglas).
+     * Carga listado de conductas, catálogo de gravedades y un formulario vacío.
      */
     @GetMapping("/conductas")
     public String gestionConductas(Model model, HttpSession session) {
+        // Seguridad por sesión
         Director director = (Director) session.getAttribute("usuario");
         if (director == null) {
             return "redirect:/auth/login";
@@ -178,6 +202,7 @@ public class DirectorGestionController {
 
     /**
      * Procesa la creación de una nueva conducta.
+     * Recibe campos individuales desde el formulario mediante @RequestParam.
      */
     @PostMapping("/conductas/crear")
     public String crearConducta(@RequestParam String nombreConducta,
@@ -195,6 +220,7 @@ public class DirectorGestionController {
 
     /**
      * Procesa la actualización de una conducta existente.
+     * Requiere el id de la conducta y campos a actualizar.
      */
     @PostMapping("/conductas/editar")
     public String editarConducta(@RequestParam Long idConducta,
@@ -212,7 +238,7 @@ public class DirectorGestionController {
     }
 
     /**
-     * Procesa la eliminación de una conducta.
+     * Procesa la eliminación de una conducta por su ID.
      */
     @GetMapping("/conductas/eliminar/{id}")
     public String eliminarConducta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -226,7 +252,7 @@ public class DirectorGestionController {
     }
 
     /**
-     * Activa una conducta.
+     * Activa una conducta por su ID (cambio de estado lógico).
      */
     @GetMapping("/conductas/activar/{id}")
     public String activarConducta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -240,7 +266,7 @@ public class DirectorGestionController {
     }
 
     /**
-     * Desactiva una conducta.
+     * Desactiva una conducta por su ID (cambio de estado lógico).
      */
     @GetMapping("/conductas/desactivar/{id}")
     public String desactivarConducta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
