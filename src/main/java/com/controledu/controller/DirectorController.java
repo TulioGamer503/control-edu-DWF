@@ -32,7 +32,6 @@ import java.util.Optional;
 public class DirectorController {
 
     // --- SERVICIOS INYECTADOS ---
-    // Asegúrate de que todos estos servicios existen y están anotados con @Service
     private final DirectorService directorService;
     private final DocenteService docenteService;
     private final EstudianteService estudianteService;
@@ -60,7 +59,6 @@ public class DirectorController {
         model.addAttribute("totalIncidentes", totalIncidentes);
         model.addAttribute("totalObservaciones", totalObservaciones);
 
-        // Asegúrate que los métodos findRecent existen en los servicios
         List<RegistroConducta> incidentesRecientes = registroConductaService.findRecent(5);
         if (incidentesRecientes == null) incidentesRecientes = new ArrayList<>();
         model.addAttribute("incidentesRecientes", incidentesRecientes);
@@ -94,7 +92,6 @@ public class DirectorController {
         if (incidentes == null) incidentes = new ArrayList<>();
         model.addAttribute("incidentes", incidentes);
 
-        // Asegúrate que estos métodos count existen en RegistroConductaService
         model.addAttribute("totalIncidentes", registroConductaService.count());
         model.addAttribute("totalNoLeidos", registroConductaService.countByLeido(false));
         model.addAttribute("totalResueltos", registroConductaService.countByEstado("RESUELTO"));
@@ -103,42 +100,14 @@ public class DirectorController {
         return "director/incidentes";
     }
 
-    // --- REPORTES ---
+    // --- REPORTES (ELIMINADO) ---
+    /*
     @GetMapping("/reportes")
     public String mostrarPaginaReportes(HttpSession session, Model model) {
-        Director director = (Director) session.getAttribute("usuario");
-        if (director == null) {
-            return "redirect:/auth/login";
-        }
-        model.addAttribute("director", director);
-
-        // Asegúrate que los servicios y sus métodos count/find existen
-        long totalEstudiantes = estudianteService.count();
-        long totalIncidentes = registroConductaService.count();
-        long totalDocentes = docenteService.count();
-        long totalObservaciones = observacionService.count();
-        List<String> grados = estudianteService.findAllGradosDistinct();
-
-        // Cálculo seguro para el promedio (movido aquí desde el HTML)
-        double promedioIncidentes = (totalEstudiantes > 0) ? ((double) totalIncidentes / totalEstudiantes) : 0.0;
-
-        // Añadimos los totales y el promedio al modelo
-        model.addAttribute("totalEstudiantes", totalEstudiantes);
-        model.addAttribute("totalDocentes", totalDocentes);
-        model.addAttribute("totalIncidentes", totalIncidentes);
-        model.addAttribute("totalObservaciones", totalObservaciones);
-        model.addAttribute("promedioIncidentes", promedioIncidentes); // Variable corregida para el HTML
-
-        model.addAttribute("grados", (grados != null ? grados : new ArrayList<>()));
-
-        // Asegúrate que estos métodos existen en RegistroConductaService y ConductaService
-        model.addAttribute("datosGravedad", registroConductaService.countByGravedad());
-        model.addAttribute("datosGrado", registroConductaService.countByGrado());
-        model.addAttribute("datosMes", registroConductaService.countByMes());
-        model.addAttribute("topConductas", conductaService.findConductasMasUtilizadas());
-
+        // ... (código eliminado) ...
         return "director/reportes";
     }
+    */
 
     // --- OTRAS PÁGINAS DEL DIRECTOR ---
     @GetMapping("/estudiantes")
@@ -149,7 +118,7 @@ public class DirectorController {
         }
         model.addAttribute("director", director);
         model.addAttribute("estudiantes", estudianteService.findAll()); // Carga la lista de estudiantes
-        return "director/estudiantes"; // Asegúrate que existe 'director/estudiantes.html'
+        return "director/estudiantes";
     }
 
     @GetMapping("/docentes")
@@ -160,7 +129,7 @@ public class DirectorController {
         }
         model.addAttribute("director", director);
         model.addAttribute("docentes", docenteService.findAll()); // Carga la lista de docentes
-        return "director/docentes"; // Asegúrate que existe 'director/docentes.html'
+        return "director/docentes";
     }
 
     @GetMapping("/conductas")
@@ -171,7 +140,7 @@ public class DirectorController {
         }
         model.addAttribute("director", director);
         model.addAttribute("conductas", conductaService.findAll()); // Carga la lista de conductas
-        return "director/conductas"; // Asegúrate que existe 'director/conductas.html'
+        return "director/conductas";
     }
 
     @GetMapping("/observaciones")
@@ -181,16 +150,14 @@ public class DirectorController {
             return "redirect:/auth/login";
         }
 
-        // Carga la lista de todas las observaciones
         List<Observacion> observaciones = observacionService.findAll();
         if (observaciones == null) {
             observaciones = new ArrayList<>();
         }
 
         model.addAttribute("director", director);
-        model.addAttribute("observaciones", observaciones); // Añade la lista al modelo
+        model.addAttribute("observaciones", observaciones);
 
-        // Asegúrate de crear el archivo 'director/observaciones.html'
         return "director/observaciones";
     }
 
@@ -202,7 +169,7 @@ public class DirectorController {
             return "redirect:/auth/login";
         }
         model.addAttribute("director", director);
-        return "director/perfil"; // Asegúrate que existe 'director/perfil.html'
+        return "director/perfil";
     }
 
 
@@ -224,16 +191,14 @@ public class DirectorController {
         model.addAttribute("director", director);
         model.addAttribute("incidente", incidente);
 
-        // Marcar como leído al ver el detalle (si aún no lo está)
-        if (!incidente.getLeido()) { // Usando getLeido()
+        if (!incidente.getLeido()) {
             try {
                 registroConductaService.marcarComoLeido(id);
             } catch (Exception e) {
-                // Manejar error si falla el marcado automático
                 redirectAttributes.addFlashAttribute("warningMessage", "No se pudo marcar como leído automáticamente: " + e.getMessage());
             }
         }
-        return "director/incidente-detalle"; // Asegúrate que existe 'director/incidente-detalle.html'
+        return "director/incidente-detalle";
     }
 
     @PostMapping("/incidentes/marcar-leido/{id}")
@@ -244,7 +209,6 @@ public class DirectorController {
         }
 
         try {
-            // Asegúrate que el método marcarComoLeido existe y funciona
             registroConductaService.marcarComoLeido(id);
             redirectAttributes.addFlashAttribute("successMessage", "Incidente marcado como leído.");
         } catch (Exception e) {
@@ -262,7 +226,6 @@ public class DirectorController {
         }
 
         try {
-            // Asegúrate que el método cambiarEstado existe y funciona
             registroConductaService.cambiarEstado(id, "RESUELTO");
             redirectAttributes.addFlashAttribute("successMessage", "Incidente marcado como resuelto.");
         } catch (Exception e) {
@@ -285,15 +248,12 @@ public class DirectorController {
 
         if (observacionOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Observación no encontrada.");
-            // Redirige a la lista de observaciones si no se encuentra
             return "redirect:/director/observaciones";
         }
         Observacion observacion = observacionOpt.get();
         model.addAttribute("director", director);
         model.addAttribute("observacion", observacion);
 
-        // Opcional: Marcar como leída al verla
-        // Asumiendo que Observacion tiene getLeido()
         if (!observacion.getLeido()) {
             try {
                 observacionService.marcarComoLeida(id);
@@ -302,7 +262,6 @@ public class DirectorController {
             }
         }
 
-        // Necesitarás crear este archivo HTML: 'director/observacion-detalle.html'
         return "director/observacion-detalle";
     }
 
@@ -314,14 +273,12 @@ public class DirectorController {
         }
 
         try {
-            // Asegúrate que el método marcarComoLeida existe en ObservacionService
             observacionService.marcarComoLeida(id);
             redirectAttributes.addFlashAttribute("successMessage", "Observación marcada como leída.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al marcar como leída: " + e.getMessage());
         }
 
-        // Redirige de vuelta a la lista de observaciones
         return "redirect:/director/observaciones";
     }
 
@@ -333,15 +290,12 @@ public class DirectorController {
         }
 
         try {
-            // Asegúrate que el método deleteById existe en ObservacionService
             observacionService.deleteById(id);
             redirectAttributes.addFlashAttribute("successMessage", "Observación eliminada correctamente.");
         } catch (Exception e) {
-            // Captura errores, por ejemplo, si la observación no existe
             redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar la observación: " + e.getMessage());
         }
 
-        // Redirige de vuelta a la lista de observaciones
         return "redirect:/director/observaciones";
     }
 }
