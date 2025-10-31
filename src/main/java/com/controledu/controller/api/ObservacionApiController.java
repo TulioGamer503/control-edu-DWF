@@ -12,12 +12,12 @@ import java.util.List;
 
 /**
  * Controlador REST para la gestión de observaciones.
- *
+ * -
  * Expone operaciones CRUD y consultas específicas (por estudiante y por docente),
  * además de una acción parcial para marcar observaciones como leídas.
- *
+ * -
  * Endpoints base: /api/observaciones
- *
+ * -
  * Buenas prácticas aplicadas:
  * - Uso de ResponseEntity para controlar códigos HTTP (200, 201, 204, 404).
  * - Verificación de existencia antes de actualizar o eliminar.
